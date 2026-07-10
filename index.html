@@ -3,106 +3,110 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#080b2e">
-<title>Stjernens Hemmelige Rute</title>
+<meta name="theme-color" content="#07091e">
+<title>Nova & Luna – Stjerneruten</title>
 <style>
-  :root{
-    --ink:#090b2e;
-    --glass:rgba(17,22,72,.72);
-    --gold:#ffe47a;
-    --pink:#ff82bd;
-    --cyan:#7deaff;
-    --mint:#92f2be;
-    --white:#f8fbff;
-  }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{
     margin:0;width:100%;height:100%;overflow:hidden;
-    background:#050719;color:var(--white);
+    background:#050719;color:white;
     font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
     touch-action:none;overscroll-behavior:none;
   }
-  #app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr}
-  #hud{
-    z-index:5;display:flex;align-items:center;justify-content:space-between;
-    gap:10px;padding:max(7px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left));
-    background:linear-gradient(180deg,rgba(5,7,25,.95),rgba(5,7,25,.48));
-    backdrop-filter:blur(12px);
-  }
-  .brand{font-weight:950;letter-spacing:.2px;font-size:clamp(14px,2.2vw,22px);white-space:nowrap}
-  #status{
-    min-width:180px;text-align:center;padding:7px 13px;border:1px solid rgba(255,255,255,.15);
-    border-radius:999px;background:rgba(255,255,255,.08);font-size:clamp(12px,1.7vw,17px);font-weight:850;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
-  }
-  #soundBtn{
-    width:42px;height:36px;border:0;border-radius:999px;background:rgba(255,255,255,.1);
-    color:white;font-size:20px;font-weight:900
-  }
-  #stage{position:relative;min-height:0;overflow:hidden}
+  #gameWrap{position:fixed;inset:0;background:#050719}
   canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-  #mainAction{
-    position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));
-    z-index:8;border:0;border-radius:999px;padding:15px 21px;
-    color:#27204a;background:linear-gradient(180deg,#fff39b,#ffd451);
-    font-size:17px;font-weight:950;letter-spacing:.3px;
-    box-shadow:0 7px 0 #bc8621,0 12px 30px rgba(0,0,0,.28);
+  #hud{
+    position:absolute;z-index:5;left:0;right:0;top:0;
+    padding:max(8px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 8px max(14px,env(safe-area-inset-left));
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    pointer-events:none;
+    background:linear-gradient(180deg,rgba(3,5,22,.84),rgba(3,5,22,.24),transparent);
   }
-  #mainAction:active{transform:translateY(4px);box-shadow:0 3px 0 #bc8621,0 7px 18px rgba(0,0,0,.25)}
-  #switchBtn{
-    position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(92px,calc(env(safe-area-inset-bottom) + 92px));
-    z-index:8;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:13px 18px;
-    color:white;background:linear-gradient(180deg,rgba(255,130,189,.95),rgba(177,59,130,.95));
-    font-size:15px;font-weight:950;box-shadow:0 6px 22px rgba(0,0,0,.25);display:none
+  #levelName{
+    font-size:clamp(14px,2vw,22px);font-weight:950;
+    text-shadow:0 2px 10px rgba(0,0,0,.55)
   }
+  #hudCenter{
+    min-width:215px;text-align:center;font-size:clamp(12px,1.7vw,18px);font-weight:900;
+    text-shadow:0 2px 10px rgba(0,0,0,.55)
+  }
+  #shield{
+    font-size:clamp(15px,2vw,21px);letter-spacing:2px;
+    filter:drop-shadow(0 2px 7px rgba(0,0,0,.6))
+  }
+  #startPanel{
+    position:absolute;z-index:10;inset:0;
+    display:grid;place-items:center;text-align:center;padding:24px;
+    background:linear-gradient(180deg,rgba(4,6,25,.12),rgba(4,6,25,.5));
+  }
+  #startCard{
+    width:min(620px,88vw);padding:26px 30px;border-radius:30px;
+    background:rgba(11,15,54,.62);border:1px solid rgba(255,255,255,.18);
+    backdrop-filter:blur(14px);box-shadow:0 24px 80px rgba(0,0,0,.38);
+  }
+  #startCard h1{
+    margin:0 0 8px;font-size:clamp(34px,5.3vw,68px);line-height:.98;
+    background:linear-gradient(90deg,#ff9dce,#fff1a1,#8cecff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  #startCard p{margin:9px 0;font-size:clamp(15px,2vw,21px);font-weight:800;line-height:1.35}
+  .small{opacity:.78;font-size:clamp(12px,1.5vw,16px)!important}
+  .action{
+    margin-top:16px;border:0;border-radius:999px;padding:15px 28px;
+    color:#26204a;background:linear-gradient(180deg,#fff5a7,#ffd44f);
+    font-size:18px;font-weight:950;letter-spacing:.4px;
+    box-shadow:0 7px 0 #b77e1b,0 13px 28px rgba(0,0,0,.3);
+  }
+  .action:active{transform:translateY(4px);box-shadow:0 3px 0 #b77e1b,0 8px 18px rgba(0,0,0,.25)}
   #tip{
-    position:absolute;left:50%;bottom:max(15px,env(safe-area-inset-bottom));transform:translateX(-50%);
-    z-index:7;padding:9px 15px;border-radius:999px;background:rgba(6,9,34,.76);
-    border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);
-    font-size:clamp(12px,1.6vw,16px);font-weight:800;pointer-events:none;white-space:nowrap;
-    transition:opacity .25s;
+    position:absolute;z-index:6;left:50%;bottom:max(14px,env(safe-area-inset-bottom));
+    transform:translateX(-50%);padding:9px 15px;border-radius:999px;
+    background:rgba(5,8,30,.64);border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(10px);font-size:clamp(12px,1.55vw,16px);font-weight:850;
+    white-space:nowrap;pointer-events:none;transition:opacity .25s;
   }
   #rotate{
-    display:none;position:fixed;inset:0;z-index:100;place-items:center;text-align:center;padding:28px;
-    background:radial-gradient(circle at 50% 30%,#293079,#090b2e 63%,#050719);
+    display:none;position:fixed;z-index:100;inset:0;place-items:center;text-align:center;padding:28px;
+    background:radial-gradient(circle at 50% 30%,#2d347e,#090b2e 62%,#050719);
   }
-  #rotate .card{
-    max-width:410px;padding:28px;border-radius:28px;background:rgba(255,255,255,.09);
-    border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 70px rgba(0,0,0,.35)
+  #rotate div{
+    max-width:420px;padding:28px;border-radius:28px;background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.17)
   }
-  #rotate .phone{font-size:64px;display:block;animation:turn 1.8s ease-in-out infinite}
-  #rotate h2{margin:12px 0 7px;font-size:28px}
-  #rotate p{margin:0;opacity:.84;font-weight:700}
+  #rotate b{display:block;font-size:64px;animation:turn 1.8s ease-in-out infinite}
+  #rotate h2{font-size:28px;margin:12px 0 6px}
+  #rotate p{margin:0;opacity:.82;font-weight:750}
   @keyframes turn{0%,25%{transform:rotate(0)}65%,100%{transform:rotate(90deg)}}
-  @media (orientation:portrait){#rotate{display:grid}#app{display:none}}
-  @media (max-height:430px){
-    #hud{padding-top:4px;padding-bottom:4px}
-    #status{padding:5px 10px}
-    #mainAction{padding:12px 18px}
-    #switchBtn{bottom:73px;padding:11px 16px}
-    #tip{bottom:9px}
-  }
+  @media (orientation:portrait){#gameWrap{display:none}#rotate{display:grid}}
 </style>
 </head>
 <body>
-<div id="app">
-  <header id="hud">
-    <div class="brand">🚀 Stjernens Hemmelige Rute</div>
-    <div id="status">Tryk START</div>
-    <button id="soundBtn" aria-label="Lyd til eller fra">🔊</button>
-  </header>
-  <main id="stage">
-    <canvas id="game" aria-label="Mobilspil"></canvas>
-    <div id="tip">Træk med fingeren for at styre</div>
-    <button id="switchBtn">SKIFT PIGE</button>
-    <button id="mainAction">START</button>
-  </main>
+<div id="gameWrap">
+  <canvas id="game" aria-label="Mobilspil med Nova og Luna"></canvas>
+
+  <div id="hud">
+    <div id="levelName">Nova & Luna</div>
+    <div id="hudCenter">Tryk START</div>
+    <div id="shield">💛💛💛</div>
+  </div>
+
+  <div id="tip">Træk fingeren på skærmen for at styre raketten</div>
+
+  <div id="startPanel">
+    <div id="startCard">
+      <h1>Stjerneruten</h1>
+      <p>Tre rumverdener. Én raket. To søstre.</p>
+      <p class="small">Nova og Luna sidder sammen i cockpittet. Træk fingeren rundt på skærmen, så følger raketten efter.</p>
+      <button id="startBtn" class="action">START EVENTYRET</button>
+    </div>
+  </div>
 </div>
+
 <div id="rotate">
-  <div class="card">
-    <span class="phone">📱</span>
+  <div>
+    <b>📱</b>
     <h2>Drej telefonen vandret</h2>
-    <p>Spillet er lavet særligt til mobil i liggende format.</p>
+    <p>Spillet er bygget til liggende mobilskærm.</p>
   </div>
 </div>
 
@@ -112,596 +116,505 @@
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
-const stage=document.getElementById('stage');
-const statusEl=document.getElementById('status');
-const actionBtn=document.getElementById('mainAction');
-const switchBtn=document.getElementById('switchBtn');
-const tipEl=document.getElementById('tip');
-const soundBtn=document.getElementById('soundBtn');
+const wrap=document.getElementById('gameWrap');
+const startPanel=document.getElementById('startPanel');
+const startCard=document.getElementById('startCard');
+const startBtn=document.getElementById('startBtn');
+const levelNameEl=document.getElementById('levelName');
+const hudCenter=document.getElementById('hudCenter');
+const shieldEl=document.getElementById('shield');
+const tip=document.getElementById('tip');
 
-const VW=1280,VH=720;
-let dpr=1,scale=1,offsetX=0,offsetY=0;
-let state='menu',level=0,last=0,time=0;
-let pointer={down:false,x:VW*.42,y:VH*.55};
-let message='',messageUntil=0,transitionAt=0;
-let score=0,soundOn=true,audio=null;
-let shake=0,flash=0;
+const W=1280,H=720;
+let dpr=1,viewScale=1,ox=0,oy=0;
+let last=0,time=0,state='menu',levelIndex=0;
+let shield=3,score=0,progress=0,invincible=0,shake=0,flash=0;
+let target={x:300,y:360,down:false};
+let message='',messageUntil=0;
+let rocket={x:200,y:330,w:164,h:84,vx:0,vy:0,trail:[]};
+let hazards=[],pickups=[],particles=[];
+let audio=null;
 
-const rand=(a,b)=>a+Math.random()*(b-a);
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-const dist=(a,b,c,d)=>Math.hypot(a-c,b-d);
-
-const stars=Array.from({length:190},()=>({
-  x:rand(0,VW),y:rand(0,VH),r:rand(.7,2.4),z:rand(.25,1),tw:rand(0,6.28)
+const stars=Array.from({length:210},()=>({
+  x:Math.random()*W,y:Math.random()*H,r:.6+Math.random()*2.1,z:.25+Math.random()*.95,p:Math.random()*6.28
 }));
-const nebulae=[
-  {x:210,y:130,r:270,c:'rgba(102,75,214,.16)'},
-  {x:980,y:250,r:330,c:'rgba(255,91,182,.12)'},
-  {x:760,y:610,r:260,c:'rgba(75,217,255,.10)'}
+
+const LEVELS=[
+  {
+    name:'Bane 1 · Asteroidebæltet',
+    short:'Asteroidebæltet',
+    goal:5,
+    speed:235,
+    length:100,
+    pickup:'stjerner',
+    message:'Saml 5 stjerner og flyv sikkert gennem asteroiderne.',
+    colors:['#090b31','#16195a','#28175b'],
+    planet:{x:1120,y:120,r:95,c1:'#d66a74',c2:'#ffbf7d',ring:true},
+    hazard:'asteroid'
+  },
+  {
+    name:'Bane 2 · Krystaltågen',
+    short:'Krystaltågen',
+    goal:6,
+    speed:255,
+    length:115,
+    pickup:'krystaller',
+    message:'Saml 6 krystaller i den lysende tåge.',
+    colors:['#071a34','#143f68','#502268'],
+    planet:{x:1080,y:560,r:130,c1:'#3a9fd3',c2:'#80f4d1',ring:false},
+    hazard:'cloud'
+  },
+  {
+    name:'Bane 3 · Kometstormen',
+    short:'Kometstormen',
+    goal:7,
+    speed:285,
+    length:130,
+    pickup:'fyrlys',
+    message:'Saml 7 fyrlys og nå frem til stjernefyret.',
+    colors:['#12051f','#381148','#691c3d'],
+    planet:{x:1100,y:125,r:78,c1:'#7948c5',c2:'#ff75b5',ring:true},
+    hazard:'comet'
+  }
 ];
 
-let rocket,asteroids,crystals,collectibles,doors,switches;
-const nova={x:170,y:490,w:45,h:72,name:'Nova',older:true,active:true,suit:'#ff78bd'};
-const luna={x:225,y:500,w:41,h:64,name:'Luna',older:false,active:false,suit:'#7deaff'};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const rand=(a,b)=>a+Math.random()*(b-a);
 
 function resize(){
-  const r=stage.getBoundingClientRect();
+  const r=wrap.getBoundingClientRect();
   dpr=Math.min(2,window.devicePixelRatio||1);
   canvas.width=Math.max(1,Math.round(r.width*dpr));
   canvas.height=Math.max(1,Math.round(r.height*dpr));
-  const sx=r.width/VW,sy=r.height/VH;
-  scale=Math.min(sx,sy);
-  offsetX=(r.width-VW*scale)/2;
-  offsetY=(r.height-VH*scale)/2;
+  viewScale=Math.min(r.width/W,r.height/H);
+  ox=(r.width-W*viewScale)/2;
+  oy=(r.height-H*viewScale)/2;
 }
 addEventListener('resize',resize,{passive:true});
 resize();
 
-function toWorld(e){
+function worldPoint(e){
   const r=canvas.getBoundingClientRect();
-  const px=e.clientX-r.left,py=e.clientY-r.top;
   return {
-    x:clamp((px-offsetX)/scale,0,VW),
-    y:clamp((py-offsetY)/scale,0,VH)
+    x:clamp(((e.clientX-r.left)-ox)/viewScale,0,W),
+    y:clamp(((e.clientY-r.top)-oy)/viewScale,0,H)
   };
 }
 
 function initAudio(){
-  if(audio||!soundOn)return;
+  if(audio)return;
   try{audio=new (window.AudioContext||window.webkitAudioContext)()}catch(_){}
 }
-function beep(freq=440,dur=.08,type='sine',gain=.045){
-  if(!soundOn)return;
-  initAudio(); if(!audio)return;
-  const o=audio.createOscillator(),g=audio.createGain();
-  o.type=type;o.frequency.value=freq;g.gain.value=gain;
-  o.connect(g);g.connect(audio.destination);
-  const now=audio.currentTime;
-  g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.001,now+dur);
-  o.start(now);o.stop(now+dur);
+function tone(freq,dur=.08,type='sine',vol=.035){
+  initAudio();if(!audio)return;
+  const o=audio.createOscillator(),g=audio.createGain(),now=audio.currentTime;
+  o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,now);
+  g.gain.exponentialRampToValueAtTime(.001,now+dur);
+  o.connect(g);g.connect(audio.destination);o.start(now);o.stop(now+dur);
 }
-function sparkleSound(){beep(880,.08,'sine',.04);setTimeout(()=>beep(1175,.1,'sine',.03),55)}
-function bumpSound(){beep(120,.12,'sawtooth',.035)}
+function collectSound(){tone(840,.08);setTimeout(()=>tone(1160,.09,'sine',.028),45)}
+function hitSound(){tone(125,.13,'sawtooth',.03)}
 
-soundBtn.addEventListener('pointerdown',e=>{
-  e.preventDefault();soundOn=!soundOn;soundBtn.textContent=soundOn?'🔊':'🔇';
-  if(soundOn){initAudio();beep(620,.08)}
-});
-
-function setMessage(text,seconds=2.4){
+function showMessage(text,seconds=2.4){
   message=text;messageUntil=time+seconds;
 }
-function updateUI(){
-  actionBtn.textContent=state==='menu'?'START':state==='win'?'SPIL IGEN':'';
-  actionBtn.style.display=(state==='menu'||state==='win')?'block':'none';
-  switchBtn.style.display=(state==='play'&&level===3)?'block':'none';
-  if(state==='menu') statusEl.textContent='Tryk START';
-  else if(state==='win') statusEl.textContent='Ruten er gennemført ✨';
-  else if(level===1) statusEl.textContent=`Stjerner ${score}/6  ·  Skjold ${rocket.shield}`;
-  else if(level===2) statusEl.textContent=`Robotdele ${score}/3`;
-  else if(level===3) statusEl.textContent=`Aktiv: ${nova.active?'Nova':'Luna'}`;
-  tipEl.textContent=level===3?'Træk for at gå · brug SKIFT PIGE':'Træk med fingeren for at styre';
-  tipEl.style.opacity=(state==='play'||state==='menu')?'1':'0';
+
+function setCard(title,text,button){
+  startCard.innerHTML=`<h1>${title}</h1><p>${text}</p><button id="dynamicBtn" class="action">${button}</button>`;
+  document.getElementById('dynamicBtn').addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(state==='levelComplete')beginLevel(levelIndex+1);
+    else if(state==='gameComplete')beginLevel(0);
+    else if(state==='failed')beginLevel(levelIndex);
+  },{once:true});
 }
 
-function beginLevel(n){
-  level=n;score=0;pointer.down=false;
-  if(n===1){
-    rocket={x:165,y:350,vx:0,vy:0,w:150,h:76,shield:3,inv:0,trail:[]};
-    asteroids=Array.from({length:11},(_,i)=>({
-      x:760+i*210+rand(0,100),y:rand(105,635),r:rand(30,58),rot:rand(0,6.28),spin:rand(-.7,.7)
-    }));
-    crystals=Array.from({length:8},(_,i)=>({
-      x:590+i*260,y:rand(110,620),r:18,got:false,phase:rand(0,6.28)
-    }));
-    state='play';
-    setMessage('Bane 1 · Før fingeren hen over rummet — raketten følger dig!',4);
-  }else if(n===2){
-    Object.assign(nova,{x:150,y:500,active:true});
-    Object.assign(luna,{x:205,y:510,active:false});
-    collectibles=[
-      {x:405,y:520,got:false},{x:720,y:430,got:false},{x:1040,y:535,got:false}
-    ];
-    state='play';
-    setMessage('Bane 2 · Find tre lysende robotdele på Regnbueplaneten.',3.6);
-  }else{
-    Object.assign(nova,{x:145,y:520,active:true});
-    Object.assign(luna,{x:205,y:530,active:false});
-    doors=[
-      {x:500,y:330,w:32,h:250,open:false},
-      {x:910,y:270,w:32,h:310,open:false}
-    ];
-    switches=[
-      {x:390,y:570,who:'Nova',on:false},
-      {x:800,y:570,who:'Luna',on:false}
-    ];
-    crystals=[{x:1135,y:500,r:25,got:false,phase:0}];
-    state='play';
-    setMessage('Bane 3 · Nova og Luna skal åbne hver sin stjernedør.',3.8);
+function beginLevel(index){
+  levelIndex=index;
+  const L=LEVELS[levelIndex];
+  state='playing';shield=3;score=0;progress=0;invincible=0;shake=0;flash=0;
+  rocket={x:180,y:330,w:164,h:84,vx:0,vy:0,trail:[]};
+  target={x:rocket.x+rocket.w*.5,y:rocket.y+rocket.h*.5,down:false};
+  hazards=[];pickups=[];particles=[];
+  for(let i=0;i<10;i++)hazards.push(makeHazard(660+i*190+rand(0,130)));
+  for(let i=0;i<L.goal+3;i++)pickups.push(makePickup(520+i*250+rand(0,120)));
+  startPanel.style.display='none';
+  tip.style.opacity='1';
+  showMessage(L.message,3.2);
+  updateHud();
+  tone(540,.08);setTimeout(()=>tone(760,.1),60);
+}
+
+function makeHazard(x){
+  const type=LEVELS[levelIndex].hazard;
+  return {
+    type,x,y:rand(105,635),
+    r:type==='asteroid'?rand(31,57):type==='cloud'?rand(38,62):rand(25,42),
+    rot:rand(0,6.28),spin:rand(-1,1),
+    vy:type==='comet'?rand(-28,28):0,
+    phase:rand(0,6.28)
+  };
+}
+function makePickup(x){
+  return {x,y:rand(100,625),r:18,phase:rand(0,6.28),taken:false};
+}
+
+function updateHud(){
+  if(state==='playing'){
+    const L=LEVELS[levelIndex];
+    levelNameEl.textContent=L.name;
+    hudCenter.textContent=`${L.pickup[0].toUpperCase()+L.pickup.slice(1)} ${score}/${L.goal} · Rute ${Math.floor(progress)}%`;
+    shieldEl.textContent='💛'.repeat(shield)+'🖤'.repeat(3-shield);
+  }else if(state==='menu'){
+    levelNameEl.textContent='Nova & Luna';
+    hudCenter.textContent='Tryk START';
+    shieldEl.textContent='💛💛💛';
   }
-  updateUI();
 }
 
-function nextLevel(n){
-  state='transition';transitionAt=time+2.1;
-  setMessage(n===2?'Perfekt flyvning! Nu lander I på Regnbueplaneten.'
-                  :'Robotten er repareret! Nu skal søstrene samarbejde.',2.1);
-  setTimeout(()=>beginLevel(n),2100);
-}
-
-function startGame(){
-  initAudio();beep(520,.09);setTimeout(()=>beep(780,.12),75);
-  if(document.documentElement.requestFullscreen){
-    document.documentElement.requestFullscreen().catch(()=>{});
-  }
-  beginLevel(1);
-}
-
-actionBtn.addEventListener('pointerdown',e=>{
-  e.preventDefault();
-  if(state==='menu'||state==='win')startGame();
-});
-
-switchBtn.addEventListener('pointerdown',e=>{
-  e.preventDefault();e.stopPropagation();
-  if(level===3&&state==='play'){
-    nova.active=!nova.active;luna.active=!luna.active;
-    sparkleSound();setMessage(`${nova.active?'Nova':'Luna'} styrer nu.`,1.1);updateUI();
-  }
-});
+startBtn.addEventListener('pointerdown',e=>{
+  e.preventDefault();initAudio();
+  if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+  beginLevel(0);
+},{once:true});
 
 canvas.addEventListener('pointerdown',e=>{
   e.preventDefault();initAudio();
-  const p=toWorld(e);pointer.down=true;pointer.x=p.x;pointer.y=p.y;
+  const p=worldPoint(e);target.down=true;target.x=p.x;target.y=p.y;
   canvas.setPointerCapture?.(e.pointerId);
-  if(state==='menu')startGame();
 });
 canvas.addEventListener('pointermove',e=>{
-  if(!pointer.down)return;e.preventDefault();
-  const p=toWorld(e);pointer.x=p.x;pointer.y=p.y;
+  if(!target.down)return;
+  e.preventDefault();
+  const p=worldPoint(e);target.x=p.x;target.y=p.y;
 });
-function releasePointer(e){pointer.down=false;try{canvas.releasePointerCapture?.(e.pointerId)}catch(_){}}
-canvas.addEventListener('pointerup',releasePointer);
-canvas.addEventListener('pointercancel',releasePointer);
+function release(e){
+  target.down=false;
+  try{canvas.releasePointerCapture?.(e.pointerId)}catch(_){}
+}
+canvas.addEventListener('pointerup',release);
+canvas.addEventListener('pointercancel',release);
 
 function update(dt){
   time+=dt;
+  const starSpeed=state==='playing'?LEVELS[levelIndex].speed*.22:28;
   stars.forEach(s=>{
-    s.x-=dt*(12+55*s.z);
-    if(s.x<-5){s.x=VW+5;s.y=rand(0,VH)}
+    s.x-=starSpeed*s.z*dt;
+    if(s.x<-4){s.x=W+4;s.y=rand(0,H)}
   });
+  particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.vx*=.98;p.vy*=.98});
+  particles=particles.filter(p=>p.life>0);
   if(shake>0)shake=Math.max(0,shake-dt*4);
   if(flash>0)flash=Math.max(0,flash-dt*3);
-  if(state!=='play')return;
+  if(state!=='playing')return;
 
-  if(level===1)updateLevel1(dt);
-  else if(level===2)updateLevel2(dt);
-  else if(level===3)updateLevel3(dt);
-  updateUI();
-}
+  const L=LEVELS[levelIndex];
+  progress+=dt*(100/L.length);
+  invincible=Math.max(0,invincible-dt);
 
-function updateLevel1(dt){
-  if(pointer.down){
-    const tx=clamp(pointer.x-rocket.w*.46,35,VW-rocket.w-35);
-    const ty=clamp(pointer.y-rocket.h*.5,45,VH-rocket.h-38);
-    const follow=1-Math.pow(.0008,dt);
-    rocket.vx+=(tx-rocket.x)*follow*7*dt;
-    rocket.vy+=(ty-rocket.y)*follow*7*dt;
+  if(target.down){
+    const tx=clamp(target.x-rocket.w*.48,24,W-rocket.w-26);
+    const ty=clamp(target.y-rocket.h*.5,55,H-rocket.h-32);
+    const follow=1-Math.pow(.0015,dt);
+    rocket.x=lerp(rocket.x,tx,follow);
+    rocket.y=lerp(rocket.y,ty,follow);
   }
-  rocket.vx*=Math.pow(.04,dt);rocket.vy*=Math.pow(.04,dt);
-  rocket.x+=rocket.vx;rocket.y+=rocket.vy;
-  rocket.x=clamp(rocket.x,25,VW-rocket.w-25);
-  rocket.y=clamp(rocket.y,45,VH-rocket.h-30);
-  rocket.inv=Math.max(0,rocket.inv-dt);
-  rocket.trail.push({x:rocket.x+6,y:rocket.y+rocket.h*.52,life:1,size:rand(9,20)});
-  if(rocket.trail.length>45)rocket.trail.shift();
+
+  rocket.trail.push({x:rocket.x+8,y:rocket.y+rocket.h*.52,life:1,size:rand(10,22)});
+  if(rocket.trail.length>50)rocket.trail.shift();
   rocket.trail.forEach(p=>p.life-=dt*2.2);
 
-  asteroids.forEach(a=>{
-    a.x-=dt*250;a.rot+=a.spin*dt;
-    if(a.x<-90){a.x=VW+rand(180,650);a.y=rand(100,640)}
-    if(rocket.inv<=0&&circleRect(a.x,a.y,a.r,rocket.x+8,rocket.y+7,rocket.w-16,rocket.h-14)){
-      rocket.shield--;rocket.inv=1.1;a.x=VW+rand(250,600);a.y=rand(100,630);
-      shake=1;flash=1;bumpSound();setMessage('Pas på! Asteroiden ramte skjoldet.',1.3);
-      if(rocket.shield<=0){
-        rocket.shield=3;score=0;
-        setMessage('Rumrobotten reparerede raketten. Prøv igen!',2.2);
-      }
+  hazards.forEach(h=>{
+    h.x-=L.speed*dt;
+    h.y+=h.vy*dt;
+    h.rot+=h.spin*dt;
+    h.phase+=dt;
+    if(h.y<75||h.y>655)h.vy*=-1;
+    if(h.x<-100)Object.assign(h,makeHazard(W+rand(180,520)));
+    if(invincible<=0&&circleRect(h.x,h.y,h.r,rocket.x+7,rocket.y+8,rocket.w-14,rocket.h-16)){
+      hitHazard(h);
     }
   });
-  crystals.forEach(g=>{
-    g.x-=dt*250;g.phase+=dt*2.4;
-    if(g.x<-40){g.x=VW+rand(240,620);g.y=rand(105,620);g.got=false}
-    if(!g.got&&circleRect(g.x,g.y,g.r+5,rocket.x,rocket.y,rocket.w,rocket.h)){
-      g.got=true;score++;sparkleSound();flash=.35;setMessage('Stjernekrystal samlet!',.85);
-      g.x=VW+rand(300,650);g.y=rand(105,620);g.got=false;
-      if(score>=6)nextLevel(2);
-    }
-  });
-}
 
-function moveActiveCharacter(dt){
-  const g=level===3?(nova.active?nova:luna):nova;
-  if(pointer.down){
-    const tx=clamp(pointer.x-g.w*.5,28,VW-g.w-28);
-    const ty=clamp(pointer.y-g.h*.72,330,VH-g.h-28);
-    const f=1-Math.pow(.002,dt);
-    g.x=lerp(g.x,tx,f);g.y=lerp(g.y,ty,f);
+  pickups.forEach(p=>{
+    p.x-=L.speed*dt;p.phase+=dt*2.2;
+    if(p.x<-40&&!p.taken)Object.assign(p,makePickup(W+rand(180,550)));
+    if(!p.taken&&circleRect(p.x,p.y,p.r+7,rocket.x,rocket.y,rocket.w,rocket.h)){
+      p.taken=true;score++;collectSound();flash=.28;
+      burst(p.x,p.y,LEVELS[levelIndex].hazard==='cloud'?'#7deaff':'#ffe47a');
+      showMessage(score>=L.goal?'Målet er nået — hold kursen!':'Flot samlet!',.8);
+      Object.assign(p,makePickup(W+rand(320,650)));
+    }
+  });
+
+  if(progress>=100){
+    if(score>=L.goal)completeLevel();
+    else{
+      progress=84;
+      showMessage(`I mangler ${L.goal-score} ${L.pickup}. Fortsæt lidt endnu!`,2);
+    }
   }
-  return g;
+  updateHud();
 }
 
-function updateLevel2(dt){
-  moveActiveCharacter(dt);
-  luna.x=lerp(luna.x,nova.x-58,1-Math.pow(.02,dt));
-  luna.y=lerp(luna.y,nova.y+10,1-Math.pow(.02,dt));
-  collectibles.forEach(p=>{
-    if(!p.got&&dist(nova.x+20,nova.y+35,p.x,p.y)<68){
-      p.got=true;score++;sparkleSound();setMessage('En robotdel!',1);
-      if(score===3)nextLevel(3);
-    }
-  });
-}
-
-function updateLevel3(dt){
-  const active=moveActiveCharacter(dt);
-  doors.forEach(d=>{
-    if(!d.open&&rectOverlap(active.x,active.y,active.w,active.h,d.x,d.y,d.w,d.h)){
-      if(active.x+active.w/2<d.x+d.w/2)active.x=d.x-active.w;
-      else active.x=d.x+d.w;
-    }
-  });
-  switches.forEach((s,i)=>{
-    const g=s.who==='Nova'?nova:luna;
-    if(!s.on&&dist(g.x+g.w/2,g.y+g.h*.72,s.x,s.y)<72){
-      s.on=true;doors[i].open=true;sparkleSound();
-      setMessage(`${s.who} åbnede en stjernedør!`,1.4);
-    }
-  });
-  const gem=crystals[0];
-  if(!gem.got&&dist(active.x+active.w/2,active.y+active.h/2,gem.x,gem.y)<72){
-    gem.got=true;sparkleSound();state='win';updateUI();
+function hitHazard(h){
+  shield--;invincible=1.15;shake=1;flash=1;hitSound();
+  if(navigator.vibrate)navigator.vibrate(70);
+  burst(h.x,h.y,'#ff7aa9');
+  Object.assign(h,makeHazard(W+rand(260,620)));
+  if(shield<=0){
+    state='failed';tip.style.opacity='0';
+    startPanel.style.display='grid';
+    setCard('Raketten skal repareres','Rumrobotten har allerede fundet værktøjet. Prøv banen igen.','PRØV IGEN');
+  }else{
+    showMessage('Pas på — skjoldet blev ramt!',1.25);
   }
 }
 
+function completeLevel(){
+  state=levelIndex===LEVELS.length-1?'gameComplete':'levelComplete';
+  tip.style.opacity='0';
+  startPanel.style.display='grid';
+  if(state==='gameComplete'){
+    setCard('Stjernefyret lyser!','Nova og Luna gennemførte alle tre rumverdener sammen.','SPIL IGEN');
+    tone(660,.12);setTimeout(()=>tone(880,.12),90);setTimeout(()=>tone(1180,.16),180);
+  }else{
+    const next=LEVELS[levelIndex+1];
+    setCard('Bane gennemført!',`Næste rumverden er ${next.short}.`,'NÆSTE BANE');
+    tone(620,.1);setTimeout(()=>tone(900,.12),75);
+  }
+}
+
+function burst(x,y,color){
+  for(let i=0;i<18;i++){
+    const a=rand(0,Math.PI*2),s=rand(55,175);
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:rand(.35,.8),r:rand(2,5),color});
+  }
+}
 function circleRect(cx,cy,r,rx,ry,rw,rh){
   const nx=clamp(cx,rx,rx+rw),ny=clamp(cy,ry,ry+rh);
   return (cx-nx)**2+(cy-ny)**2<r*r;
 }
-function rectOverlap(ax,ay,aw,ah,bx,by,bw,bh){
-  return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;
-}
 
-function beginFrame(){
-  const r=stage.getBoundingClientRect();
+function beginDraw(){
+  const r=wrap.getBoundingClientRect();
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,r.width,r.height);
   ctx.save();
-  const sx=shake?rand(-8,8)*shake:0,sy=shake?rand(-5,5)*shake:0;
-  ctx.translate(offsetX+sx,offsetY+sy);
-  ctx.scale(scale,scale);
+  ctx.translate(ox+(shake?rand(-7,7)*shake:0),oy+(shake?rand(-4,4)*shake:0));
+  ctx.scale(viewScale,viewScale);
 }
-function endFrame(){
-  if(flash>0){
-    ctx.fillStyle=`rgba(255,255,255,${flash*.22})`;
-    ctx.fillRect(0,0,VW,VH);
-  }
+function endDraw(){
+  if(flash>0){ctx.fillStyle=`rgba(255,255,255,${flash*.2})`;ctx.fillRect(0,0,W,H)}
   ctx.restore();
 }
-
 function draw(){
-  beginFrame();
-  drawSpace();
-  if(state==='menu')drawMenu();
+  beginDraw();
+  drawBackground();
+  if(state==='menu')drawMenuScene();
   else{
-    if(level===1)drawLevel1();
-    else if(level===2)drawLevel2();
-    else if(level===3)drawLevel3();
-    if(state==='transition')drawTransition();
-    if(state==='win')drawWin();
+    drawTrail();
+    hazards.forEach(drawHazard);
+    pickups.forEach(drawPickup);
+    drawRocket(rocket.x,rocket.y,1);
+    particles.forEach(drawParticle);
+    if(target.down&&state==='playing')drawFingerTarget();
+    if(message&&time<messageUntil)drawMessage(message);
   }
-  if(message&&time<messageUntil)drawMessage(message);
-  endFrame();
+  endDraw();
 }
 
-function drawSpace(){
-  const bg=ctx.createLinearGradient(0,0,0,VH);
-  bg.addColorStop(0,'#090b31');bg.addColorStop(.55,'#11164a');bg.addColorStop(1,'#07091f');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,VW,VH);
-  nebulae.forEach(n=>{
-    const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
-    g.addColorStop(0,n.c);g.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=g;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
-  });
+function drawBackground(){
+  const C=LEVELS[levelIndex]?.colors||['#090b31','#16195a','#28175b'];
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,C[0]);g.addColorStop(.58,C[1]);g.addColorStop(1,C[2]);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  const fog1=ctx.createRadialGradient(220,120,0,220,120,300);
+  fog1.addColorStop(0,'rgba(119,98,255,.16)');fog1.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=fog1;ctx.beginPath();ctx.arc(220,120,300,0,Math.PI*2);ctx.fill();
+
+  const fog2=ctx.createRadialGradient(960,520,0,960,520,360);
+  fog2.addColorStop(0,levelIndex===1?'rgba(86,230,255,.15)':'rgba(255,98,177,.12)');
+  fog2.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=fog2;ctx.beginPath();ctx.arc(960,520,360,0,Math.PI*2);ctx.fill();
+
   stars.forEach(s=>{
-    const a=.4+.5*Math.sin(time*(1+s.z)+s.tw);
-    ctx.globalAlpha=a;ctx.fillStyle=s.z>.75?'#fff7c9':'#dfe7ff';
+    ctx.globalAlpha=.35+.65*Math.sin(time*(.8+s.z)+s.p)**2;
+    ctx.fillStyle=s.z>.75?'#fff8cf':'#dce6ff';
     ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
   });
   ctx.globalAlpha=1;
+
+  const P=LEVELS[levelIndex]?.planet||{x:1090,y:120,r:95,c1:'#d66a74',c2:'#ffbf7d',ring:true};
+  drawPlanet(P);
+  if(levelIndex===1)drawNebulaRibbons();
+  if(levelIndex===2)drawDistantBeacon();
 }
 
-function drawMenu(){
-  drawPlanet(1090,170,105,'#9869ea','#ff8fcb',true);
-  drawPlanet(170,610,155,'#3c9ed0','#70f0cf',false);
-  ctx.save();ctx.textAlign='center';
-  const titleGrad=ctx.createLinearGradient(310,0,970,0);
-  titleGrad.addColorStop(0,'#ff9dce');titleGrad.addColorStop(.5,'#fff1a5');titleGrad.addColorStop(1,'#8deaff');
-  ctx.fillStyle=titleGrad;ctx.font='950 66px ui-rounded,system-ui';
-  ctx.shadowColor='rgba(124,99,255,.45)';ctx.shadowBlur=24;
-  ctx.fillText('Stjernens Hemmelige Rute',VW/2,130);
-  ctx.shadowBlur=0;ctx.fillStyle='rgba(241,246,255,.9)';ctx.font='800 24px ui-rounded,system-ui';
-  ctx.fillText('Et rumeventyr med Nova og Luna',VW/2,174);
-  ctx.restore();
+function drawMenuScene(){
+  drawRocket(475,285,1.8);
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(255,255,255,.82)';
+  ctx.font='850 20px ui-rounded,system-ui';
+  ctx.fillText('Nova og Luna er klar i cockpittet',W/2,560);
+}
 
-  drawRocket(VW/2-155,275,1.7,true);
-  ctx.save();ctx.textAlign='center';ctx.fillStyle='#f8fbff';ctx.font='850 22px ui-rounded,system-ui';
-  ctx.fillText('Begge søstre er klar i raketten',VW/2,520);
-  ctx.fillStyle='#9ff5c7';ctx.font='900 20px ui-rounded,system-ui';
-  ctx.fillText('Tryk START og træk med fingeren for at flyve',VW/2,558);
+function drawNebulaRibbons(){
+  ctx.save();ctx.globalAlpha=.18;
+  ctx.strokeStyle='#8cf1ff';ctx.lineWidth=44;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(-80,570);ctx.bezierCurveTo(280,370,530,700,900,480);ctx.stroke();
+  ctx.strokeStyle='#ff86c2';ctx.lineWidth=24;
+  ctx.beginPath();ctx.moveTo(240,-20);ctx.bezierCurveTo(420,190,760,40,1080,280);ctx.stroke();
+  ctx.restore();
+}
+function drawDistantBeacon(){
+  ctx.save();ctx.translate(1120,430);
+  const beam=ctx.createLinearGradient(0,-260,0,0);
+  beam.addColorStop(0,'rgba(255,239,151,0)');beam.addColorStop(1,'rgba(255,239,151,.22)');
+  ctx.fillStyle=beam;ctx.beginPath();ctx.moveTo(-60,0);ctx.lineTo(0,-270);ctx.lineTo(60,0);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ffe47a';ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
 
-function drawLevel1(){
-  drawPlanet(1145,90,72,'#f2a058','#ffd47e',true);
+function drawTrail(){
   rocket.trail.filter(p=>p.life>0).forEach(p=>{
-    ctx.globalAlpha=Math.max(0,p.life)*.65;
+    ctx.globalAlpha=Math.max(0,p.life)*.66;
     const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size);
-    g.addColorStop(0,'#fff8c8');g.addColorStop(.35,'#ff9b55');g.addColorStop(1,'rgba(255,73,150,0)');
+    g.addColorStop(0,'#fff8bd');g.addColorStop(.35,'#ff9d61');g.addColorStop(1,'rgba(255,85,169,0)');
     ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
-  });ctx.globalAlpha=1;
-  asteroids.forEach(drawAsteroid);
-  crystals.forEach(g=>{if(!g.got)drawCrystal(g.x,g.y,g.r,g.phase)});
-  ctx.globalAlpha=rocket.inv>0&&Math.floor(time*12)%2===0?.38:1;
-  drawRocket(rocket.x,rocket.y,1,true);
+  });
   ctx.globalAlpha=1;
-  if(pointer.down){
-    ctx.strokeStyle='rgba(125,234,255,.45)';ctx.lineWidth=3;
-    ctx.beginPath();ctx.arc(pointer.x,pointer.y,28+Math.sin(time*8)*4,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(pointer.x,pointer.y,5,0,Math.PI*2);ctx.fill();
-  }
 }
 
-function drawLevel2(){
-  const sky=ctx.createLinearGradient(0,250,0,VH);
-  sky.addColorStop(0,'rgba(115,83,205,.12)');sky.addColorStop(1,'rgba(18,110,103,.75)');
-  ctx.fillStyle=sky;ctx.fillRect(0,260,VW,VH-260);
-  drawPlanet(1085,125,112,'#ffb066','#ffd997',true);
-  // distant hills
-  ctx.fillStyle='#563f95';
-  ctx.beginPath();ctx.moveTo(0,475);
-  for(let x=0;x<=VW;x+=120)ctx.quadraticCurveTo(x+60,365-rand(0,80),x+120,475);
-  ctx.lineTo(VW,VH);ctx.lineTo(0,VH);ctx.closePath();ctx.fill();
-  const ground=ctx.createLinearGradient(0,480,0,VH);
-  ground.addColorStop(0,'#3b9b88');ground.addColorStop(1,'#173f59');
-  ctx.fillStyle=ground;ctx.fillRect(0,475,VW,VH-475);
-  // glowing plants
-  for(let x=50;x<VW;x+=95){
-    ctx.strokeStyle='rgba(125,234,255,.55)';ctx.lineWidth=4;
-    ctx.beginPath();ctx.moveTo(x,610);ctx.quadraticCurveTo(x-10,565,x+8,530);ctx.stroke();
-    ctx.fillStyle='rgba(255,130,189,.85)';ctx.beginPath();ctx.arc(x+8,528,7,0,Math.PI*2);ctx.fill();
-  }
-  collectibles.forEach((p,i)=>{if(!p.got)drawRobotPart(p.x,p.y,i)});
-  drawRobot(1135,530,score);
-  drawGirl(nova.x,nova.y,1,nova.suit,nova.older,false);
-  drawGirl(luna.x,luna.y,.9,luna.suit,luna.older,false);
-}
-
-function drawLevel3(){
-  ctx.fillStyle='rgba(50,67,142,.72)';ctx.fillRect(0,340,VW,380);
-  ctx.fillStyle='#273668';
-  for(let x=0;x<VW;x+=145){
-    roundRect(x+10,420+(x/145%2)*25,110,210,18,true);
-    ctx.fillStyle='rgba(125,234,255,.17)';roundRect(x+30,452+(x/145%2)*25,70,88,12,true);
-    ctx.fillStyle='#273668';
-  }
-  ctx.fillStyle='#17223f';ctx.fillRect(0,610,VW,110);
-  ctx.strokeStyle='rgba(125,234,255,.22)';ctx.lineWidth=2;
-  for(let x=0;x<VW;x+=80){ctx.beginPath();ctx.moveTo(x,610);ctx.lineTo(x+40,720);ctx.stroke()}
-  doors.forEach((d,i)=>drawDoor(d,i));
-  switches.forEach(drawSwitch);
-  if(!crystals[0].got)drawCrystal(crystals[0].x,crystals[0].y,crystals[0].r,time*2);
-  drawGirl(nova.x,nova.y,1,nova.suit,nova.older,nova.active);
-  drawGirl(luna.x,luna.y,.9,luna.suit,luna.older,luna.active);
-}
-
-function drawTransition(){
-  ctx.fillStyle='rgba(4,7,28,.40)';ctx.fillRect(0,0,VW,VH);
-  for(let i=0;i<16;i++){
-    const x=(i*91+time*180)%VW,y=100+(i*137)%520;
-    drawCrystal(x,y,7+(i%3)*3,time*2+i);
-  }
-}
-
-function drawWin(){
-  ctx.fillStyle='rgba(4,7,28,.70)';ctx.fillRect(0,0,VW,VH);
-  for(let i=0;i<80;i++){
-    const a=i*2.399+time*.25,r=(i%17)*14;
-    const x=VW/2+Math.cos(a)*r,y=320+Math.sin(a)*r*.55;
-    ctx.fillStyle=i%3===0?'#ffe47a':i%3===1?'#ff82bd':'#7deaff';
-    ctx.globalAlpha=.55+.45*Math.sin(time*4+i);
-    ctx.beginPath();ctx.arc(x,y,2+(i%4),0,Math.PI*2);ctx.fill();
-  }
-  ctx.globalAlpha=1;
-  ctx.textAlign='center';ctx.fillStyle='#ffe987';ctx.font='950 64px ui-rounded,system-ui';
-  ctx.shadowColor='rgba(255,228,122,.5)';ctx.shadowBlur=28;
-  ctx.fillText('Stjernefyret lyser!',VW/2,150);ctx.shadowBlur=0;
-  drawGirl(VW/2-95,275,1.35,nova.suit,true,true);
-  drawGirl(VW/2+35,295,1.2,luna.suit,false,true);
-  ctx.fillStyle='#f7f9ff';ctx.font='850 25px ui-rounded,system-ui';
-  ctx.fillText('Nova og Luna klarede hele ruten sammen',VW/2,500);
-  ctx.fillStyle='#9ff5c7';ctx.font='900 20px ui-rounded,system-ui';
-  ctx.fillText('Tryk SPIL IGEN for et nyt eventyr',VW/2,542);
-}
-
-function drawMessage(text){
-  ctx.save();ctx.textAlign='center';
-  const w=Math.min(910,Math.max(480,ctx.measureText(text).width+100));
-  ctx.fillStyle='rgba(7,10,39,.80)';roundRect(VW/2-w/2,24,w,60,30,true);
-  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=2;roundRect(VW/2-w/2,24,w,60,30,false,true);
-  ctx.fillStyle='#fff';ctx.font='850 21px ui-rounded,system-ui';ctx.fillText(text,VW/2,63);
-  ctx.restore();
-}
-
-function drawRocket(x,y,s=1,crew=true){
+function drawRocket(x,y,s=1){
   ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-  // glow
-  const glow=ctx.createRadialGradient(70,40,10,70,40,95);
-  glow.addColorStop(0,'rgba(125,234,255,.18)');glow.addColorStop(1,'rgba(125,234,255,0)');
-  ctx.fillStyle=glow;ctx.beginPath();ctx.arc(70,40,95,0,Math.PI*2);ctx.fill();
-  // flame
-  const flame=ctx.createLinearGradient(-30,0,15,0);
-  flame.addColorStop(0,'rgba(255,71,159,0)');flame.addColorStop(.45,'#ff6fae');flame.addColorStop(1,'#fff2a3');
-  ctx.fillStyle=flame;ctx.beginPath();ctx.moveTo(7,27);ctx.quadraticCurveTo(-35,40,7,54);ctx.closePath();ctx.fill();
-  // fins
+  const flame=ctx.createLinearGradient(-32,0,16,0);
+  flame.addColorStop(0,'rgba(255,66,163,0)');flame.addColorStop(.5,'#ff67a8');flame.addColorStop(1,'#fff0a1');
+  ctx.fillStyle=flame;ctx.beginPath();ctx.moveTo(10,28);ctx.quadraticCurveTo(-40,42,10,57);ctx.closePath();ctx.fill();
+
   ctx.fillStyle='#ff79b8';
-  ctx.beginPath();ctx.moveTo(52,64);ctx.lineTo(25,87);ctx.lineTo(78,65);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(52,18);ctx.lineTo(27,-2);ctx.lineTo(81,17);ctx.closePath();ctx.fill();
-  // body
-  const body=ctx.createLinearGradient(15,5,115,70);
-  body.addColorStop(0,'#ffffff');body.addColorStop(.55,'#dce8ff');body.addColorStop(1,'#a8b9e2');
-  ctx.fillStyle=body;roundRect(10,13,118,58,29,true);
-  ctx.fillStyle='#ff82bd';ctx.beginPath();ctx.moveTo(109,14);ctx.quadraticCurveTo(150,20,166,42);ctx.quadraticCurveTo(150,64,109,71);ctx.closePath();ctx.fill();
-  // cockpit
-  const glass=ctx.createLinearGradient(55,15,98,58);
-  glass.addColorStop(0,'#d9fbff');glass.addColorStop(.45,'#6fcaea');glass.addColorStop(1,'#345c9d');
-  ctx.fillStyle=glass;ctx.beginPath();ctx.ellipse(79,41,35,24,-.05,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(54,66);ctx.lineTo(24,91);ctx.lineTo(84,68);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(54,18);ctx.lineTo(27,-5);ctx.lineTo(85,17);ctx.closePath();ctx.fill();
+
+  const body=ctx.createLinearGradient(15,8,145,75);
+  body.addColorStop(0,'#ffffff');body.addColorStop(.55,'#deebff');body.addColorStop(1,'#9fb3df');
+  ctx.fillStyle=body;roundRect(12,13,126,62,31,true);
+
+  ctx.fillStyle='#ff82bd';ctx.beginPath();ctx.moveTo(117,14);ctx.quadraticCurveTo(157,19,174,44);ctx.quadraticCurveTo(156,68,117,75);ctx.closePath();ctx.fill();
+
+  const glass=ctx.createLinearGradient(56,15,104,60);
+  glass.addColorStop(0,'#e5fdff');glass.addColorStop(.48,'#70d0ed');glass.addColorStop(1,'#365b9b');
+  ctx.fillStyle=glass;ctx.beginPath();ctx.ellipse(84,43,39,26,-.04,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=3;ctx.stroke();
-  if(crew){
-    // two girls clearly visible inside cockpit
-    drawCockpitGirl(67,43,.72,'#ff82bd',true);
-    drawCockpitGirl(91,45,.64,'#7deaff',false);
-  }
-  // body details
-  ctx.fillStyle='#ffe47a';ctx.beginPath();ctx.arc(30,42,7,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.65)';ctx.beginPath();ctx.ellipse(69,29,16,6,-.25,0,Math.PI*2);ctx.fill();
+
+  drawCockpitGirl(71,45,.78,'#ff82bd');
+  drawCockpitGirl(98,47,.69,'#7deaff');
+
+  ctx.fillStyle='#ffe47a';ctx.beginPath();ctx.arc(33,44,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.beginPath();ctx.ellipse(73,29,17,6,-.25,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
-function drawCockpitGirl(x,y,s,suit,older){
+function drawCockpitGirl(x,y,s,suit){
   ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-  ctx.fillStyle=suit;ctx.beginPath();ctx.arc(0,13,12,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#f3c7a5';ctx.beginPath();ctx.arc(0,-1,10,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#f4df8d';
-  ctx.beginPath();ctx.arc(-6,-5,7,0,Math.PI*2);ctx.arc(1,-8,8,0,Math.PI*2);ctx.arc(7,-4,7,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#2d2852';ctx.beginPath();ctx.arc(-3,0,1.2,0,Math.PI*2);ctx.arc(4,0,1.2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=suit;ctx.beginPath();ctx.arc(0,13,13,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f2c5a2';ctx.beginPath();ctx.arc(0,-1,10.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f4df91';
+  ctx.beginPath();ctx.arc(-7,-5,7,0,Math.PI*2);ctx.arc(1,-9,8,0,Math.PI*2);ctx.arc(8,-4,7,0,Math.PI*2);
+  ctx.arc(-9,2,5,0,Math.PI*2);ctx.arc(10,3,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#2b2750';ctx.beginPath();ctx.arc(-3,0,1.2,0,Math.PI*2);ctx.arc(4,0,1.2,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
-function drawGirl(x,y,s=1,suit='#ff82bd',older=true,active=false){
-  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-  if(active){
-    ctx.strokeStyle='#ffe47a';ctx.lineWidth=5;ctx.shadowColor='#ffe47a';ctx.shadowBlur=18;
-    ctx.beginPath();ctx.ellipse(22,36,39,53,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
-  }
-  ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(22,73,28,7,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=suit;roundRect(4,23,37,46,15,true);
-  ctx.fillStyle='#eef5ff';roundRect(10,33,25,13,6,true);
-  ctx.fillStyle='#f3c7a5';ctx.beginPath();ctx.arc(22,13,15,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#f3dd8d';
-  ctx.beginPath();ctx.arc(13,6,12,0,Math.PI*2);ctx.arc(25,2,13,0,Math.PI*2);ctx.arc(34,10,11,0,Math.PI*2);ctx.fill();
-  // fluffy side curls
-  ctx.beginPath();ctx.arc(8,14,8,0,Math.PI*2);ctx.arc(36,17,8,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#28234c';ctx.beginPath();ctx.arc(17,14,1.7,0,Math.PI*2);ctx.arc(27,14,1.7,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#28234c';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(22,18,6,0,Math.PI);ctx.stroke();
-  ctx.fillStyle='#dce8ff';roundRect(7,64,11,12,4,true);roundRect(28,64,11,12,4,true);
-  ctx.restore();
+
+function drawHazard(h){
+  if(h.type==='asteroid')drawAsteroid(h);
+  else if(h.type==='cloud')drawCloud(h);
+  else drawComet(h);
 }
-function drawAsteroid(a){
-  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.rot);
-  const g=ctx.createRadialGradient(-a.r*.3,-a.r*.35,4,0,0,a.r);
-  g.addColorStop(0,'#aaa1bd');g.addColorStop(.55,'#6f6687');g.addColorStop(1,'#3e3957');
+function drawAsteroid(h){
+  ctx.save();ctx.translate(h.x,h.y);ctx.rotate(h.rot);
+  const g=ctx.createRadialGradient(-h.r*.3,-h.r*.35,3,0,0,h.r);
+  g.addColorStop(0,'#b8afc8');g.addColorStop(.56,'#716986');g.addColorStop(1,'#3d3853');
   ctx.fillStyle=g;ctx.beginPath();
   for(let i=0;i<12;i++){
-    const ang=i*Math.PI/6,rr=a.r*(.82+.18*Math.sin(i*4.7+a.rot));
-    const px=Math.cos(ang)*rr,py=Math.sin(ang)*rr;
-    i?ctx.lineTo(px,py):ctx.moveTo(px,py);
-  }ctx.closePath();ctx.fill();
-  ctx.fillStyle='rgba(50,44,74,.45)';
-  [[-.25,-.2,.2],[.28,.15,.15],[-.05,.35,.12]].forEach(q=>{
-    ctx.beginPath();ctx.arc(a.r*q[0],a.r*q[1],a.r*q[2],0,Math.PI*2);ctx.fill();
+    const a=i*Math.PI/6,rr=h.r*(.82+.18*Math.sin(i*4.8+h.phase));
+    i?ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);
+  }
+  ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(45,40,65,.4)';
+  [[-.25,-.18,.22],[.3,.18,.15],[-.05,.36,.12]].forEach(q=>{
+    ctx.beginPath();ctx.arc(h.r*q[0],h.r*q[1],h.r*q[2],0,Math.PI*2);ctx.fill();
   });
   ctx.restore();
 }
-function drawCrystal(x,y,r,phase=0){
-  ctx.save();ctx.translate(x,y);ctx.rotate(phase*.35);
-  ctx.shadowColor='#ffe47a';ctx.shadowBlur=22;
-  const g=ctx.createLinearGradient(-r,-r,r,r);
-  g.addColorStop(0,'#fff9ca');g.addColorStop(.45,'#ffe469');g.addColorStop(1,'#ff85bd');
+function drawCloud(h){
+  ctx.save();ctx.translate(h.x,h.y);
+  ctx.shadowColor='#72e8ff';ctx.shadowBlur=24;
+  const g=ctx.createRadialGradient(-10,-12,6,0,0,h.r);
+  g.addColorStop(0,'rgba(208,250,255,.95)');g.addColorStop(.42,'rgba(102,209,255,.78)');g.addColorStop(1,'rgba(92,79,210,.15)');
+  ctx.fillStyle=g;
+  for(let i=0;i<5;i++){
+    const a=i*Math.PI*2/5+h.phase*.12;
+    ctx.beginPath();ctx.arc(Math.cos(a)*h.r*.36,Math.sin(a)*h.r*.22,h.r*.55,0,Math.PI*2);ctx.fill();
+  }
+  ctx.strokeStyle='#fff59a';ctx.lineWidth=3;ctx.shadowColor='#fff59a';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.moveTo(-8,-h.r*.5);ctx.lineTo(8,-10);ctx.lineTo(-5,8);ctx.lineTo(10,h.r*.48);ctx.stroke();
+  ctx.restore();
+}
+function drawComet(h){
+  ctx.save();ctx.translate(h.x,h.y);ctx.rotate(-.15+h.rot*.1);
+  const tail=ctx.createLinearGradient(-h.r*3,0,0,0);
+  tail.addColorStop(0,'rgba(255,92,172,0)');tail.addColorStop(.58,'rgba(255,126,190,.5)');tail.addColorStop(1,'rgba(255,244,175,.92)');
+  ctx.fillStyle=tail;ctx.beginPath();ctx.moveTo(-h.r*3,-h.r*.48);ctx.lineTo(0,-h.r*.78);ctx.lineTo(0,h.r*.78);ctx.lineTo(-h.r*3,h.r*.48);ctx.closePath();ctx.fill();
+  const g=ctx.createRadialGradient(-h.r*.2,-h.r*.2,2,0,0,h.r);
+  g.addColorStop(0,'#fffbd2');g.addColorStop(.45,'#ffbd6b');g.addColorStop(1,'#bb496f');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,h.r,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawPickup(p){
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.phase*.35);
+  ctx.shadowColor=levelIndex===1?'#7deaff':'#ffe47a';ctx.shadowBlur=22;
+  const g=ctx.createLinearGradient(-p.r,-p.r,p.r,p.r);
+  g.addColorStop(0,'#fffbd0');
+  g.addColorStop(.46,levelIndex===1?'#7deaff':'#ffe56d');
+  g.addColorStop(1,'#ff83bd');
   ctx.fillStyle=g;ctx.beginPath();
   for(let i=0;i<10;i++){
-    const rr=i%2===0?r:r*.43,a=-Math.PI/2+i*Math.PI/5;
-    const px=Math.cos(a)*rr,py=Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py);
-  }ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.restore();
-}
-function drawPlanet(x,y,r,c1,c2,ring){
-  ctx.save();ctx.translate(x,y);
-  if(ring){
-    ctx.strokeStyle='rgba(169,239,255,.55)';ctx.lineWidth=r*.17;
-    ctx.beginPath();ctx.ellipse(0,0,r*1.55,r*.35,-.2,0,Math.PI*2);ctx.stroke();
+    const rr=i%2===0?p.r:p.r*.43,a=-Math.PI/2+i*Math.PI/5;
+    i?ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);
   }
-  const g=ctx.createRadialGradient(-r*.35,-r*.38,r*.08,0,0,r);
-  g.addColorStop(0,c2);g.addColorStop(1,c1);
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.restore();
+}
+function drawPlanet(P){
+  ctx.save();ctx.translate(P.x,P.y);
+  if(P.ring){
+    ctx.strokeStyle='rgba(172,239,255,.48)';ctx.lineWidth=P.r*.16;
+    ctx.beginPath();ctx.ellipse(0,0,P.r*1.55,P.r*.34,-.2,0,Math.PI*2);ctx.stroke();
+  }
+  const g=ctx.createRadialGradient(-P.r*.35,-P.r*.38,P.r*.08,0,0,P.r);
+  g.addColorStop(0,P.c2);g.addColorStop(1,P.c1);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,P.r,0,Math.PI*2);ctx.fill();
   ctx.globalAlpha=.16;ctx.fillStyle='#fff';
-  ctx.beginPath();ctx.ellipse(-r*.25,-r*.25,r*.4,r*.17,-.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(-P.r*.26,-P.r*.26,P.r*.42,P.r*.17,-.5,0,Math.PI*2);ctx.fill();
   ctx.restore();ctx.globalAlpha=1;
 }
-function drawRobotPart(x,y,i){
-  ctx.save();ctx.translate(x,y+Math.sin(time*3+i)*7);
-  ctx.shadowColor='#7deaff';ctx.shadowBlur=18;
-  const g=ctx.createLinearGradient(-20,-20,20,20);g.addColorStop(0,'#f4f8ff');g.addColorStop(1,'#8395c8');
-  ctx.fillStyle=g;roundRect(-22,-22,44,44,10,true);
-  ctx.fillStyle=i===0?'#ff82bd':i===1?'#ffe47a':'#7deaff';ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;ctx.restore();
+function drawParticle(p){
+  ctx.globalAlpha=clamp(p.life*1.7,0,1);ctx.fillStyle=p.color;
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
 }
-function drawRobot(x,y,parts){
-  ctx.save();ctx.translate(x,y);
-  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(0,40,48,10,0,0,Math.PI*2);ctx.fill();
-  const g=ctx.createLinearGradient(-35,-45,35,35);g.addColorStop(0,'#eef5ff');g.addColorStop(1,'#8293c2');
-  ctx.fillStyle=g;roundRect(-39,-48,78,77,18,true);
-  ctx.fillStyle=parts===3?'#92f2be':'#1d285c';roundRect(-27,-33,54,30,11,true);
-  ctx.fillStyle=parts===3?'#17392d':'#7deaff';
-  ctx.beginPath();ctx.arc(-12,-18,5,0,Math.PI*2);ctx.arc(12,-18,5,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#4c5985';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-25,30);ctx.lineTo(-30,48);ctx.moveTo(25,30);ctx.lineTo(30,48);ctx.stroke();
-  ctx.restore();
+function drawFingerTarget(){
+  ctx.strokeStyle='rgba(125,234,255,.48)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(target.x,target.y,28+Math.sin(time*8)*4,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.86)';ctx.beginPath();ctx.arc(target.x,target.y,5,0,Math.PI*2);ctx.fill();
 }
-function drawDoor(d,i){
-  if(d.open){
-    ctx.strokeStyle='rgba(146,242,190,.65)';ctx.lineWidth=5;roundRect(d.x,d.y,d.w,d.h,12,false,true);
-    return;
-  }
-  const g=ctx.createLinearGradient(d.x,d.y,d.x+d.w,d.y);
-  g.addColorStop(0,i===0?'#ff82bd':'#7deaff');g.addColorStop(1,'#ffe47a');
-  ctx.fillStyle=g;roundRect(d.x,d.y,d.w,d.h,12,true);
-  ctx.shadowColor=i===0?'#ff82bd':'#7deaff';ctx.shadowBlur=20;
-  ctx.fillRect(d.x+8,d.y+12,d.w-16,d.h-24);ctx.shadowBlur=0;
-}
-function drawSwitch(s){
-  ctx.save();ctx.translate(s.x,s.y);
-  ctx.fillStyle=s.on?'#92f2be':'#222b61';roundRect(-42,-17,84,34,17,true);
-  ctx.fillStyle=s.who==='Nova'?'#ff82bd':'#7deaff';ctx.beginPath();ctx.arc(s.on?24:-24,0,12,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fff';ctx.font='850 15px ui-rounded,system-ui';ctx.textAlign='center';ctx.fillText(s.who,0,40);
-  ctx.restore();
+function drawMessage(text){
+  ctx.save();ctx.textAlign='center';ctx.font='850 21px ui-rounded,system-ui';
+  const w=Math.min(930,Math.max(430,ctx.measureText(text).width+90));
+  ctx.fillStyle='rgba(5,8,31,.76)';roundRect(W/2-w/2,26,w,58,29,true);
+  ctx.strokeStyle='rgba(255,255,255,.17)';ctx.lineWidth=2;roundRect(W/2-w/2,26,w,58,29,false,true);
+  ctx.fillStyle='#fff';ctx.fillText(text,W/2,63);ctx.restore();
 }
 function roundRect(x,y,w,h,r,fill=false,stroke=false){
   const rr=Math.min(r,w/2,h/2);
@@ -714,7 +627,7 @@ function loop(ts){
   const dt=Math.min(.033,(ts-last)/1000||0);last=ts;
   update(dt);draw();requestAnimationFrame(loop);
 }
-updateUI();requestAnimationFrame(loop);
+updateHud();requestAnimationFrame(loop);
 })();
 </script>
 </body>
