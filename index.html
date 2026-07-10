@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#07091e">
-<title>Nova & Luna – Asteroidebæltet</title>
+<title>Edith & Willa – Stjerneraketten</title>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{
@@ -82,22 +82,22 @@
 </head>
 <body>
 <div id="gameWrap">
-  <canvas id="game" aria-label="Mobilspil med Nova og Luna"></canvas>
+  <canvas id="game" aria-label="Mobilspil med Edith og Willa"></canvas>
 
   <div id="hud">
-    <div id="levelName">Nova & Luna</div>
+    <div id="levelName">Edith & Willa</div>
     <div id="hudCenter">Tryk START</div>
     <div id="shield">💛💛💛</div>
   </div>
 
-  <div id="tip">Træk fingeren på skærmen for at styre raketten</div>
+  <div id="tip">Træk fingeren på skærmen og undgå asteroider, monstre og UFO'er</div>
 
   <div id="startPanel">
     <div id="startCard">
-      <h1>Asteroidebæltet</h1>
-      <p>Én flot rumbane. Én raket. To søstre.</p>
-      <p class="small">Nova og Luna sidder sammen i cockpittet. Træk fingeren rundt på skærmen, og før dem sikkert gennem asteroidebæltet.</p>
-      <button id="startBtn" class="action">START BANEN</button>
+      <h1>Stjerneraketten</h1>
+      <p>To niveauer. Én raket. To søstre.</p>
+      <p class="small">Edith og Willa sidder sammen i cockpittet. Først kommer et lettere niveau til Willa på 4 år, og derefter et hurtigere niveau til Edith på 8 år.</p>
+      <button id="startBtn" class="action">START SPILLET</button>
     </div>
   </div>
 </div>
@@ -132,7 +132,7 @@ let shield=3,score=0,progress=0,invincible=0,shake=0,flash=0;
 let target={x:300,y:360,down:false};
 let message='',messageUntil=0;
 let rocket={x:200,y:330,w:164,h:84,vx:0,vy:0,trail:[]};
-let hazards=[],pickups=[],particles=[];
+let hazards=[],pickups=[],particles=[],monsters=[],ufos=[];
 let audio=null;
 
 const stars=Array.from({length:210},()=>({
@@ -141,16 +141,36 @@ const stars=Array.from({length:210},()=>({
 
 const LEVELS=[
   {
-    name:'Bane 1 · Asteroidebæltet',
-    short:'Asteroidebæltet',
-    goal:8,
-    speed:255,
-    length:105,
+    name:'Niveau 1 · Willa (4 år)',
+    short:'Willas stjernetur',
+    goal:5,
+    speed:215,
+    length:88,
     pickup:'stjerner',
-    message:'Saml 8 stjerner og flyv sikkert gennem asteroidebæltet.',
-    colors:['#080b31','#1b2067','#050717'],
-    planet:{x:1110,y:120,r:95,c1:'#784d83',c2:'#ffd18a',ring:true},
-    hazard:'asteroid'
+    message:'Willa skal samle 5 stjerner. Denne tur er rolig og let.',
+    colors:['#080b31','#18205f','#050717'],
+    planet:{x:1090,y:120,r:92,c1:'#6d4b86',c2:'#ffd28a',ring:true},
+    hazard:'asteroid',
+    hazardCount:8,
+    pickupCount:8,
+    monsterCount:1,
+    ufoCount:1
+  },
+  {
+    name:'Niveau 2 · Edith (8 år)',
+    short:'Ediths stjernejagt',
+    goal:8,
+    speed:275,
+    length:108,
+    pickup:'stjerner',
+    message:'Ediths niveau er hurtigere. Saml 8 stjerner og undgå flere farer.',
+    colors:['#070b34','#23155c','#050717'],
+    planet:{x:1105,y:130,r:96,c1:'#884677',c2:'#ffb17b',ring:true},
+    hazard:'asteroid',
+    hazardCount:12,
+    pickupCount:12,
+    monsterCount:2,
+    ufoCount:2
   }
 ];
 
@@ -212,12 +232,14 @@ function beginLevel(index){
   state='playing';shield=3;score=0;progress=0;invincible=0;shake=0;flash=0;
   rocket={x:180,y:330,w:164,h:84,vx:0,vy:0,trail:[]};
   target={x:rocket.x+rocket.w*.5,y:rocket.y+rocket.h*.5,down:false};
-  hazards=[];pickups=[];particles=[];
-  for(let i=0;i<12;i++)hazards.push(makeHazard(650+i*175+rand(0,130)));
-  for(let i=0;i<L.goal+3;i++)pickups.push(makePickup(520+i*250+rand(0,120)));
+  hazards=[];pickups=[];particles=[];monsters=[];ufos=[];
+  for(let i=0;i<L.hazardCount;i++)hazards.push(makeHazard(660+i*185+rand(0,110)));
+  for(let i=0;i<L.pickupCount;i++)pickups.push(makePickup(520+i*250+rand(0,120)));
+  for(let i=0;i<L.monsterCount;i++)monsters.push(makeMonster(W+rand(720,1500)+i*340));
+  for(let i=0;i<L.ufoCount;i++)ufos.push(makeUfo(W+rand(980,1800)+i*420));
   startPanel.style.display='none';
   tip.style.opacity='1';
-  showMessage(L.message,3.2);
+  showMessage(L.message,3.4);
   updateHud();
   tone(540,.08);setTimeout(()=>tone(760,.1),60);
 }
@@ -235,15 +257,39 @@ function makeHazard(x){
 function makePickup(x){
   return {x,y:rand(100,625),r:18,phase:rand(0,6.28),taken:false};
 }
+function makeMonster(x){
+  const mood=Math.random()<.5?'round':'spiky';
+  return {
+    x,
+    y:rand(125,600),
+    baseY:rand(125,600),
+    r:rand(28,40),
+    phase:rand(0,6.28),
+    drift:rand(.8,1.3),
+    mood
+  };
+}
+function makeUfo(x){
+  const w=rand(56,76), h=rand(26,38);
+  return {
+    x,
+    y:rand(120,590),
+    baseY:rand(120,590),
+    w,h,
+    phase:rand(0,6.28),
+    drift:rand(.9,1.35),
+    tilt:0
+  };
+}
 
 function updateHud(){
   if(state==='playing'){
     const L=LEVELS[levelIndex];
     levelNameEl.textContent=L.name;
-    hudCenter.textContent=`${L.pickup[0].toUpperCase()+L.pickup.slice(1)} ${score}/${L.goal} · Rute ${Math.floor(progress)}%`;
+    hudCenter.textContent=`Stjerner ${score}/${L.goal} · Rute ${Math.floor(progress)}%`;
     shieldEl.textContent='💛'.repeat(shield)+'🖤'.repeat(3-shield);
   }else if(state==='menu'){
-    levelNameEl.textContent='Nova & Luna';
+    levelNameEl.textContent='Edith & Willa';
     hudCenter.textContent='Tryk START';
     shieldEl.textContent='💛💛💛';
   }
@@ -307,9 +353,32 @@ function update(dt){
     h.rot+=h.spin*dt;
     h.phase+=dt;
     if(h.y<75||h.y>655)h.vy*=-1;
-    if(h.x<-100)Object.assign(h,makeHazard(W+rand(180,520)));
-    if(invincible<=0&&circleRect(h.x,h.y,h.r,rocket.x+7,rocket.y+8,rocket.w-14,rocket.h-16)){
+    if(h.x<-100)Object.assign(h,makeHazard(W+rand(180,650)));
+    if(invincible<=0&&circleRect(h.x,h.y,h.r,rocket.x+8,rocket.y+7,rocket.w-16,rocket.h-14)){
       hitHazard(h);
+    }
+  });
+
+  monsters.forEach(m=>{
+    m.x-=L.speed*dt*(.62+m.drift*.12);
+    m.phase+=dt*(1.6+m.drift*.5);
+    m.y = m.baseY + Math.sin(m.phase*1.8)*26 + Math.cos(m.phase*2.7)*12;
+    if(m.x<-100)Object.assign(m,makeMonster(W+rand(900,1700)));
+    if(invincible<=0&&circleRect(m.x,m.y,m.r,rocket.x+10,rocket.y+10,rocket.w-20,rocket.h-20)){
+      m.type='monster';
+      hitHazard(m);
+    }
+  });
+
+  ufos.forEach(u=>{
+    u.x-=L.speed*dt*(.8+u.drift*.16);
+    u.phase+=dt*(2.2+u.drift*.35);
+    u.y = u.baseY + Math.sin(u.phase*2.4)*34 + Math.sin(u.phase*5.2)*11;
+    u.tilt = Math.sin(u.phase*1.8)*.08;
+    if(u.x<-120)Object.assign(u,makeUfo(W+rand(1100,1900)));
+    if(invincible<=0&&circleRect(u.x,u.y,Math.max(u.w,u.h)*.42,rocket.x+10,rocket.y+10,rocket.w-20,rocket.h-20)){
+      u.type='ufo';
+      hitHazard(u);
     }
   });
 
@@ -318,7 +387,7 @@ function update(dt){
     if(p.x<-40&&!p.taken)Object.assign(p,makePickup(W+rand(180,550)));
     if(!p.taken&&circleRect(p.x,p.y,p.r+7,rocket.x,rocket.y,rocket.w,rocket.h)){
       p.taken=true;score++;collectSound();flash=.28;
-      burst(p.x,p.y,LEVELS[levelIndex].hazard==='cloud'?'#7deaff':'#ffe47a');
+      burst(p.x,p.y,'#ffe47a');
       showMessage(score>=L.goal?'Målet er nået — hold kursen!':'Flot samlet!',.8);
       Object.assign(p,makePickup(W+rand(320,650)));
     }
@@ -328,7 +397,7 @@ function update(dt){
     if(score>=L.goal)completeLevel();
     else{
       progress=84;
-      showMessage(`I mangler ${L.goal-score} ${L.pickup}. Fortsæt lidt endnu!`,2);
+      showMessage(`I mangler ${L.goal-score} stjerner. Fortsæt lidt endnu!`,2);
     }
   }
   updateHud();
@@ -338,22 +407,30 @@ function hitHazard(h){
   shield--;invincible=1.15;shake=1;flash=1;hitSound();
   if(navigator.vibrate)navigator.vibrate(70);
   burst(h.x,h.y,'#ff7aa9');
-  Object.assign(h,makeHazard(W+rand(260,620)));
+  if(h.type==='monster') Object.assign(h,makeMonster(W+rand(900,1600)));
+  else if(h.type==='ufo') Object.assign(h,makeUfo(W+rand(1000,1800)));
+  else Object.assign(h,makeHazard(W+rand(260,620)));
   if(shield<=0){
     state='failed';tip.style.opacity='0';
     startPanel.style.display='grid';
-    setCard('Raketten skal repareres','Rumrobotten har allerede fundet værktøjet. Prøv banen igen.','PRØV IGEN');
+    setCard('Raketten skal repareres','Edith og Willa er klar til et nyt forsøg. Prøv niveauet igen.','PRØV IGEN');
   }else{
     showMessage('Pas på — skjoldet blev ramt!',1.25);
   }
 }
 
 function completeLevel(){
-  state='gameComplete';
   tip.style.opacity='0';
   startPanel.style.display='grid';
-  setCard('Bane gennemført!','Nova og Luna fløj gennem asteroidebæltet og samlede alle stjernerne.','SPIL IGEN');
-  tone(660,.12);setTimeout(()=>tone(880,.12),90);setTimeout(()=>tone(1180,.16),180);
+  if(levelIndex<LEVELS.length-1){
+    state='levelComplete';
+    setCard('Niveau gennemført!',`Willa er klar. Næste niveau er ${LEVELS[levelIndex+1].short}.`,'NÆSTE NIVEAU');
+    tone(620,.1);setTimeout(()=>tone(900,.12),75);
+  }else{
+    state='gameComplete';
+    setCard('Begge niveauer er klaret!','Edith og Willa fløj sikkert gennem rummet og samlede alle stjernerne.','SPIL IGEN');
+    tone(660,.12);setTimeout(()=>tone(880,.12),90);setTimeout(()=>tone(1180,.16),180);
+  }
 }
 
 function burst(x,y,color){
@@ -386,6 +463,8 @@ function draw(){
   else{
     drawTrail();
     hazards.forEach(drawHazard);
+    monsters.forEach(drawMonster);
+    ufos.forEach(drawUfo);
     pickups.forEach(drawPickup);
     drawRocket(rocket.x,rocket.y,1);
     particles.forEach(drawParticle);
@@ -408,12 +487,12 @@ function drawBackground(){
 
   // Bløde tåger oven på den samme baggrund.
   const fog1=ctx.createRadialGradient(250,145,0,250,145,360);
-  fog1.addColorStop(0,levelIndex===1?'rgba(80,210,255,.13)':'rgba(124,101,255,.12)');
+  fog1.addColorStop(0,levelIndex===1?'rgba(255,112,172,.12)':'rgba(124,101,255,.12)');
   fog1.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=fog1;ctx.beginPath();ctx.arc(250,145,360,0,Math.PI*2);ctx.fill();
 
   const fog2=ctx.createRadialGradient(970,520,0,970,520,430);
-  fog2.addColorStop(0,levelIndex===2?'rgba(255,104,176,.12)':levelIndex===1?'rgba(104,231,255,.10)':'rgba(255,146,101,.08)');
+  fog2.addColorStop(0,levelIndex===1?'rgba(255,104,176,.12)':'rgba(104,231,255,.10)');
   fog2.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=fog2;ctx.beginPath();ctx.arc(970,520,430,0,Math.PI*2);ctx.fill();
 
@@ -439,7 +518,7 @@ function drawMenuScene(){
   ctx.textAlign='center';
   ctx.fillStyle='rgba(255,255,255,.82)';
   ctx.font='850 20px ui-rounded,system-ui';
-  ctx.fillText('Nova og Luna er klar i cockpittet',W/2,560);
+  ctx.fillText('Edith og Willa er klar i cockpittet',W/2,560);
 }
 
 function drawNebulaRibbons(){
@@ -554,6 +633,51 @@ function drawComet(h){
   ctx.restore();
 }
 
+function drawMonster(m){
+  ctx.save();ctx.translate(m.x,m.y);
+  ctx.shadowColor='rgba(149,255,210,.28)';ctx.shadowBlur=18;
+  const g=ctx.createRadialGradient(-m.r*.25,-m.r*.3,2,0,0,m.r);
+  g.addColorStop(0,'#d8ffe4');g.addColorStop(.45,'#8ef3c1');g.addColorStop(1,'#2e8b79');
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  if(m.mood==='spiky'){
+    for(let i=0;i<12;i++){
+      const rr=i%2===0?m.r:m.r*.68,a=-Math.PI/2+i*Math.PI/6;
+      i?ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);
+    }
+    ctx.closePath();
+  }else{
+    ctx.arc(0,0,m.r,0,Math.PI*2);
+  }
+  ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#173847';ctx.beginPath();ctx.arc(-m.r*.22,-m.r*.1,m.r*.14,0,Math.PI*2);ctx.arc(m.r*.22,-m.r*.1,m.r*.14,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-m.r*.22,-m.r*.1,m.r*.07,0,Math.PI*2);ctx.arc(m.r*.22,-m.r*.1,m.r*.07,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#173847';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,m.r*.14,m.r*.26,0,Math.PI);ctx.stroke();
+  for(let i=0;i<4;i++){
+    const tx=-m.r*.5+i*(m.r*.32);
+    ctx.strokeStyle='#8ef3c1';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(tx,m.r*.72);ctx.quadraticCurveTo(tx+4,m.r*1.02,tx+8,m.r*.9);ctx.stroke();
+  }
+  ctx.restore();
+}
+function drawUfo(u){
+  ctx.save();ctx.translate(u.x,u.y);ctx.rotate(u.tilt||0);
+  ctx.shadowColor='rgba(125,234,255,.34)';ctx.shadowBlur=18;
+  const beam=ctx.createLinearGradient(0,14,0,58);
+  beam.addColorStop(0,'rgba(255,241,148,0)');beam.addColorStop(1,'rgba(255,241,148,.22)');
+  ctx.fillStyle=beam;ctx.beginPath();ctx.moveTo(-20,18);ctx.lineTo(0,58);ctx.lineTo(20,18);ctx.closePath();ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#9be8ff';ctx.beginPath();ctx.ellipse(0,-5,u.w*.23,u.h*.34,0,0,Math.PI*2);ctx.fill();
+  const ring=ctx.createLinearGradient(-u.w*.5,0,u.w*.5,0);
+  ring.addColorStop(0,'#dce7ff');ring.addColorStop(.5,'#9daede');ring.addColorStop(1,'#6d7fb5');
+  ctx.fillStyle=ring;ctx.beginPath();ctx.ellipse(0,10,u.w*.5,u.h*.42,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffe47a';
+  for(let i=-2;i<=2;i++){
+    ctx.beginPath();ctx.arc(i*(u.w*.15),11,3.2,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
 function drawPickup(p){
   ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.phase*.35);
   ctx.shadowColor=levelIndex===1?'#7deaff':'#ffe47a';ctx.shadowBlur=22;
