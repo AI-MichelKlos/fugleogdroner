@@ -1,453 +1,720 @@
 <!doctype html>
 <html lang="da">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stjernens Hemmelige Rute</title>
-  <style>
-    :root{
-      --bg:#090b2b; --panel:#15194a; --accent:#ffd85a; --pink:#ff78b8;
-      --cyan:#63e6ff; --white:#f8f8ff; --green:#7cf29a;
-    }
-    *{box-sizing:border-box}
-    html,body{width:100%;height:100%;margin:0;overflow:hidden}
-    body{
-      display:grid; place-items:center;
-      background:radial-gradient(circle at 50% 20%,#252b77 0,#0a0d31 45%,#040516 100%);
-      color:var(--white); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-      touch-action:none; overscroll-behavior:none;
-    }
-    #wrap{
-      width:100vw; height:100vh; padding:8px;
-      display:grid; grid-template-rows:auto 1fr auto;
-    }
-    #topbar{
-      display:flex; justify-content:space-between; align-items:center; gap:12px;
-      background:rgba(21,25,74,.92); border:2px solid rgba(255,255,255,.15);
-      border-radius:16px; padding:10px 14px; margin-bottom:10px;
-      box-shadow:0 8px 28px rgba(0,0,0,.3);
-    }
-    #title{font-weight:900; letter-spacing:.3px}
-    #status{font-weight:700; color:var(--accent); text-align:right}
-    canvas{
-      width:100%; height:100%; min-height:0; display:block; border-radius:18px;
-      background:#05071f; border:3px solid rgba(255,255,255,.16);
-      box-shadow:0 16px 50px rgba(0,0,0,.45);
-      touch-action:none;
-    }
-    #help{
-      margin-top:8px; text-align:center; color:#dce2ff; font-size:13px;
-      background:rgba(21,25,74,.75); border-radius:14px; padding:6px 10px;
-    }
-    .btns{display:flex; justify-content:center; gap:8px; margin-top:6px; flex-wrap:wrap}
-    button{
-      border:0; border-radius:999px; padding:10px 16px; font-weight:800;
-      background:var(--accent); color:#2a2450; cursor:pointer;
-      box-shadow:0 4px 0 #c69f28;
-    }
-    #mobileControls{
-      position:fixed; inset:0; pointer-events:none; z-index:10;
-      display:flex; justify-content:space-between; align-items:flex-end;
-      padding:0 22px 18px;
-    }
-    .pad,.actions{pointer-events:auto; display:grid; gap:8px}
-    .pad{grid-template-columns:64px 64px 64px; grid-template-rows:58px 58px}
-    .pad button,.actions button{
-      width:64px; height:58px; padding:0; font-size:26px;
-      background:rgba(255,255,255,.88); box-shadow:0 4px 0 rgba(0,0,0,.25);
-      user-select:none; -webkit-user-select:none;
-    }
-    .pad .up{grid-column:2}.pad .left{grid-column:1;grid-row:2}
-    .pad .down{grid-column:2;grid-row:2}.pad .right{grid-column:3;grid-row:2}
-    .actions{grid-template-columns:82px; align-content:end}
-    .actions button{width:82px;height:64px;font-size:18px;background:rgba(255,216,90,.94)}
-    #rotateNotice{
-      display:none; position:fixed; inset:0; z-index:50; place-items:center;
-      background:#090b2b; color:white; text-align:center; padding:30px;
-    }
-    #rotateNotice div{max-width:420px;font-size:24px;font-weight:900;line-height:1.35}
-    @media (orientation:portrait){
-      #rotateNotice{display:grid}
-      #wrap,#mobileControls{display:none}
-    }
-    @media (max-height:500px){
-      #topbar{padding:6px 10px;margin-bottom:6px;font-size:14px}
-      #help{display:none}
-      #wrap{grid-template-rows:auto 1fr}
-      .pad{grid-template-columns:56px 56px 56px;grid-template-rows:50px 50px}
-      .pad button{width:56px;height:50px}
-      .actions button{width:76px;height:56px}
-    }
-    button:active{transform:translateY(2px); box-shadow:0 2px 0 #c69f28}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#080b2e">
+<title>Stjernens Hemmelige Rute</title>
+<style>
+  :root{
+    --ink:#090b2e;
+    --glass:rgba(17,22,72,.72);
+    --gold:#ffe47a;
+    --pink:#ff82bd;
+    --cyan:#7deaff;
+    --mint:#92f2be;
+    --white:#f8fbff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{
+    margin:0;width:100%;height:100%;overflow:hidden;
+    background:#050719;color:var(--white);
+    font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
+    touch-action:none;overscroll-behavior:none;
+  }
+  #app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr}
+  #hud{
+    z-index:5;display:flex;align-items:center;justify-content:space-between;
+    gap:10px;padding:max(7px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left));
+    background:linear-gradient(180deg,rgba(5,7,25,.95),rgba(5,7,25,.48));
+    backdrop-filter:blur(12px);
+  }
+  .brand{font-weight:950;letter-spacing:.2px;font-size:clamp(14px,2.2vw,22px);white-space:nowrap}
+  #status{
+    min-width:180px;text-align:center;padding:7px 13px;border:1px solid rgba(255,255,255,.15);
+    border-radius:999px;background:rgba(255,255,255,.08);font-size:clamp(12px,1.7vw,17px);font-weight:850;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  #soundBtn{
+    width:42px;height:36px;border:0;border-radius:999px;background:rgba(255,255,255,.1);
+    color:white;font-size:20px;font-weight:900
+  }
+  #stage{position:relative;min-height:0;overflow:hidden}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #mainAction{
+    position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));
+    z-index:8;border:0;border-radius:999px;padding:15px 21px;
+    color:#27204a;background:linear-gradient(180deg,#fff39b,#ffd451);
+    font-size:17px;font-weight:950;letter-spacing:.3px;
+    box-shadow:0 7px 0 #bc8621,0 12px 30px rgba(0,0,0,.28);
+  }
+  #mainAction:active{transform:translateY(4px);box-shadow:0 3px 0 #bc8621,0 7px 18px rgba(0,0,0,.25)}
+  #switchBtn{
+    position:absolute;right:max(18px,env(safe-area-inset-right));bottom:max(92px,calc(env(safe-area-inset-bottom) + 92px));
+    z-index:8;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:13px 18px;
+    color:white;background:linear-gradient(180deg,rgba(255,130,189,.95),rgba(177,59,130,.95));
+    font-size:15px;font-weight:950;box-shadow:0 6px 22px rgba(0,0,0,.25);display:none
+  }
+  #tip{
+    position:absolute;left:50%;bottom:max(15px,env(safe-area-inset-bottom));transform:translateX(-50%);
+    z-index:7;padding:9px 15px;border-radius:999px;background:rgba(6,9,34,.76);
+    border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);
+    font-size:clamp(12px,1.6vw,16px);font-weight:800;pointer-events:none;white-space:nowrap;
+    transition:opacity .25s;
+  }
+  #rotate{
+    display:none;position:fixed;inset:0;z-index:100;place-items:center;text-align:center;padding:28px;
+    background:radial-gradient(circle at 50% 30%,#293079,#090b2e 63%,#050719);
+  }
+  #rotate .card{
+    max-width:410px;padding:28px;border-radius:28px;background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 70px rgba(0,0,0,.35)
+  }
+  #rotate .phone{font-size:64px;display:block;animation:turn 1.8s ease-in-out infinite}
+  #rotate h2{margin:12px 0 7px;font-size:28px}
+  #rotate p{margin:0;opacity:.84;font-weight:700}
+  @keyframes turn{0%,25%{transform:rotate(0)}65%,100%{transform:rotate(90deg)}}
+  @media (orientation:portrait){#rotate{display:grid}#app{display:none}}
+  @media (max-height:430px){
+    #hud{padding-top:4px;padding-bottom:4px}
+    #status{padding:5px 10px}
+    #mainAction{padding:12px 18px}
+    #switchBtn{bottom:73px;padding:11px 16px}
+    #tip{bottom:9px}
+  }
+</style>
 </head>
 <body>
-<div id="wrap">
-  <div id="topbar">
-    <div id="title">🚀 Stjernens Hemmelige Rute</div>
+<div id="app">
+  <header id="hud">
+    <div class="brand">🚀 Stjernens Hemmelige Rute</div>
     <div id="status">Tryk START</div>
-  </div>
-  <canvas id="game" width="960" height="540" aria-label="Rumspil"></canvas>
-  <div id="help">
-    Mobilspil i vandret format · Brug knapperne på skærmen
-    <div class="btns">
-      <button id="startBtn">Start / fortsæt</button>
-      <button id="restartBtn">Start forfra</button>
-    </div>
+    <button id="soundBtn" aria-label="Lyd til eller fra">🔊</button>
+  </header>
+  <main id="stage">
+    <canvas id="game" aria-label="Mobilspil"></canvas>
+    <div id="tip">Træk med fingeren for at styre</div>
+    <button id="switchBtn">SKIFT PIGE</button>
+    <button id="mainAction">START</button>
+  </main>
+</div>
+<div id="rotate">
+  <div class="card">
+    <span class="phone">📱</span>
+    <h2>Drej telefonen vandret</h2>
+    <p>Spillet er lavet særligt til mobil i liggende format.</p>
   </div>
 </div>
-
-<div id="mobileControls">
-  <div class="pad">
-    <button class="up" data-key="ArrowUp">▲</button>
-    <button class="left" data-key="ArrowLeft">◀</button>
-    <button class="down" data-key="ArrowDown">▼</button>
-    <button class="right" data-key="ArrowRight">▶</button>
-  </div>
-  <div class="actions">
-    <button id="switchBtn">SKIFT</button>
-    <button id="actionBtn">START</button>
-  </div>
-</div>
-
-<div id="rotateNotice"><div>📱 Drej telefonen vandret for at spille</div></div>
 
 <script>
-(() => {
-  const c = document.getElementById('game');
-  const ctx = c.getContext('2d');
-  const statusEl = document.getElementById('status');
-  const keys = {};
-  let scene = 'menu', level = 0, t = 0, last = 0;
-  let score = 0, message = '', messageTimer = 0;
+(()=>{
+'use strict';
 
-  const W = c.width, H = c.height;
-  const stars = Array.from({length:140},()=>({
-    x:Math.random()*W, y:Math.random()*H, r:Math.random()*2+0.5, s:Math.random()*40+15
-  }));
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const stage=document.getElementById('stage');
+const statusEl=document.getElementById('status');
+const actionBtn=document.getElementById('mainAction');
+const switchBtn=document.getElementById('switchBtn');
+const tipEl=document.getElementById('tip');
+const soundBtn=document.getElementById('soundBtn');
 
-  const girl1 = {x:160,y:395,w:38,h:58,active:true,name:'Nova',age:8};
-  const girl2 = {x:220,y:405,w:34,h:50,active:false,name:'Luna',age:4};
+const VW=1280,VH=720;
+let dpr=1,scale=1,offsetX=0,offsetY=0;
+let state='menu',level=0,last=0,time=0;
+let pointer={down:false,x:VW*.42,y:VH*.55};
+let message='',messageUntil=0,transitionAt=0;
+let score=0,soundOn=true,audio=null;
+let shake=0,flash=0;
 
-  let rocket, asteroids, gems, planetItems, robotParts, doors, switches;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const dist=(a,b,c,d)=>Math.hypot(a-c,b-d);
 
-  function resetLevel(n){
-    level = n; score = 0; message = ''; messageTimer = 0;
-    if(n===1){
-      rocket={x:120,y:270,vx:0,vy:0,w:90,h:42,hp:3};
-      asteroids=[]; gems=[];
-      for(let i=0;i<10;i++) asteroids.push({x:650+i*180,y:80+Math.random()*360,r:24+Math.random()*25});
-      for(let i=0;i<8;i++) gems.push({x:480+i*210,y:80+Math.random()*370,r:12,got:false});
-      scene='play';
-      setMessage('Bane 1: Flyv gennem asteroiderne og saml 5 stjerner!');
-    } else if(n===2){
-      Object.assign(girl1,{x:110,y:395}); Object.assign(girl2,{x:160,y:405});
-      planetItems=[
-        {x:350,y:410,type:'crystal',got:false},
-        {x:535,y:340,type:'crystal',got:false},
-        {x:760,y:400,type:'crystal',got:false}
-      ];
-      robotParts=[
-        {x:285,y:450,got:false},{x:610,y:455,got:false},{x:820,y:300,got:false}
-      ];
-      scene='play';
-      setMessage('Bane 2: Udforsk planeten og find 3 robotdele.');
-    } else if(n===3){
-      Object.assign(girl1,{x:120,y:420,active:true});
-      Object.assign(girl2,{x:170,y:430,active:false});
-      doors=[{x:420,y:310,w:28,h:170,open:false},{x:735,y:260,w:28,h:220,open:false}];
-      switches=[
-        {x:330,y:455,who:1,on:false},
-        {x:655,y:455,who:2,on:false}
-      ];
-      gems=[{x:875,y:420,r:18,got:false}];
-      scene='play';
-      setMessage('Bane 3: Skift med Q. Nova og Luna skal hjælpe hinanden.');
-    }
-    updateStatus();
+const stars=Array.from({length:190},()=>({
+  x:rand(0,VW),y:rand(0,VH),r:rand(.7,2.4),z:rand(.25,1),tw:rand(0,6.28)
+}));
+const nebulae=[
+  {x:210,y:130,r:270,c:'rgba(102,75,214,.16)'},
+  {x:980,y:250,r:330,c:'rgba(255,91,182,.12)'},
+  {x:760,y:610,r:260,c:'rgba(75,217,255,.10)'}
+];
+
+let rocket,asteroids,crystals,collectibles,doors,switches;
+const nova={x:170,y:490,w:45,h:72,name:'Nova',older:true,active:true,suit:'#ff78bd'};
+const luna={x:225,y:500,w:41,h:64,name:'Luna',older:false,active:false,suit:'#7deaff'};
+
+function resize(){
+  const r=stage.getBoundingClientRect();
+  dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.max(1,Math.round(r.width*dpr));
+  canvas.height=Math.max(1,Math.round(r.height*dpr));
+  const sx=r.width/VW,sy=r.height/VH;
+  scale=Math.min(sx,sy);
+  offsetX=(r.width-VW*scale)/2;
+  offsetY=(r.height-VH*scale)/2;
+}
+addEventListener('resize',resize,{passive:true});
+resize();
+
+function toWorld(e){
+  const r=canvas.getBoundingClientRect();
+  const px=e.clientX-r.left,py=e.clientY-r.top;
+  return {
+    x:clamp((px-offsetX)/scale,0,VW),
+    y:clamp((py-offsetY)/scale,0,VH)
+  };
+}
+
+function initAudio(){
+  if(audio||!soundOn)return;
+  try{audio=new (window.AudioContext||window.webkitAudioContext)()}catch(_){}
+}
+function beep(freq=440,dur=.08,type='sine',gain=.045){
+  if(!soundOn)return;
+  initAudio(); if(!audio)return;
+  const o=audio.createOscillator(),g=audio.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.value=gain;
+  o.connect(g);g.connect(audio.destination);
+  const now=audio.currentTime;
+  g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.001,now+dur);
+  o.start(now);o.stop(now+dur);
+}
+function sparkleSound(){beep(880,.08,'sine',.04);setTimeout(()=>beep(1175,.1,'sine',.03),55)}
+function bumpSound(){beep(120,.12,'sawtooth',.035)}
+
+soundBtn.addEventListener('pointerdown',e=>{
+  e.preventDefault();soundOn=!soundOn;soundBtn.textContent=soundOn?'🔊':'🔇';
+  if(soundOn){initAudio();beep(620,.08)}
+});
+
+function setMessage(text,seconds=2.4){
+  message=text;messageUntil=time+seconds;
+}
+function updateUI(){
+  actionBtn.textContent=state==='menu'?'START':state==='win'?'SPIL IGEN':'';
+  actionBtn.style.display=(state==='menu'||state==='win')?'block':'none';
+  switchBtn.style.display=(state==='play'&&level===3)?'block':'none';
+  if(state==='menu') statusEl.textContent='Tryk START';
+  else if(state==='win') statusEl.textContent='Ruten er gennemført ✨';
+  else if(level===1) statusEl.textContent=`Stjerner ${score}/6  ·  Skjold ${rocket.shield}`;
+  else if(level===2) statusEl.textContent=`Robotdele ${score}/3`;
+  else if(level===3) statusEl.textContent=`Aktiv: ${nova.active?'Nova':'Luna'}`;
+  tipEl.textContent=level===3?'Træk for at gå · brug SKIFT PIGE':'Træk med fingeren for at styre';
+  tipEl.style.opacity=(state==='play'||state==='menu')?'1':'0';
+}
+
+function beginLevel(n){
+  level=n;score=0;pointer.down=false;
+  if(n===1){
+    rocket={x:165,y:350,vx:0,vy:0,w:150,h:76,shield:3,inv:0,trail:[]};
+    asteroids=Array.from({length:11},(_,i)=>({
+      x:760+i*210+rand(0,100),y:rand(105,635),r:rand(30,58),rot:rand(0,6.28),spin:rand(-.7,.7)
+    }));
+    crystals=Array.from({length:8},(_,i)=>({
+      x:590+i*260,y:rand(110,620),r:18,got:false,phase:rand(0,6.28)
+    }));
+    state='play';
+    setMessage('Bane 1 · Før fingeren hen over rummet — raketten følger dig!',4);
+  }else if(n===2){
+    Object.assign(nova,{x:150,y:500,active:true});
+    Object.assign(luna,{x:205,y:510,active:false});
+    collectibles=[
+      {x:405,y:520,got:false},{x:720,y:430,got:false},{x:1040,y:535,got:false}
+    ];
+    state='play';
+    setMessage('Bane 2 · Find tre lysende robotdele på Regnbueplaneten.',3.6);
+  }else{
+    Object.assign(nova,{x:145,y:520,active:true});
+    Object.assign(luna,{x:205,y:530,active:false});
+    doors=[
+      {x:500,y:330,w:32,h:250,open:false},
+      {x:910,y:270,w:32,h:310,open:false}
+    ];
+    switches=[
+      {x:390,y:570,who:'Nova',on:false},
+      {x:800,y:570,who:'Luna',on:false}
+    ];
+    crystals=[{x:1135,y:500,r:25,got:false,phase:0}];
+    state='play';
+    setMessage('Bane 3 · Nova og Luna skal åbne hver sin stjernedør.',3.8);
   }
+  updateUI();
+}
 
-  function setMessage(s,secs=3){ message=s; messageTimer=secs; }
+function nextLevel(n){
+  state='transition';transitionAt=time+2.1;
+  setMessage(n===2?'Perfekt flyvning! Nu lander I på Regnbueplaneten.'
+                  :'Robotten er repareret! Nu skal søstrene samarbejde.',2.1);
+  setTimeout(()=>beginLevel(n),2100);
+}
 
-  function updateStatus(){
-    const actionBtn=document.getElementById('actionBtn');
-    const switchBtn=document.getElementById('switchBtn');
-    if(actionBtn) actionBtn.textContent=scene==='menu'?'START':scene==='win'?'IGEN':'SPIL';
-    if(switchBtn) switchBtn.style.opacity=(level===3&&scene==='play')?'1':'.45';
-    if(scene==='menu') statusEl.textContent='Tryk START';
-    else if(scene==='win') statusEl.textContent='Spillet er gennemført!';
-    else if(level===1) statusEl.textContent=`Bane 1 · Stjerner: ${score}/5 · Skjold: ${rocket.hp}`;
-    else if(level===2) statusEl.textContent=`Bane 2 · Robotdele: ${score}/3`;
-    else if(level===3) statusEl.textContent=`Bane 3 · Aktiv: ${girl1.active?'Nova':'Luna'}`;
+function startGame(){
+  initAudio();beep(520,.09);setTimeout(()=>beep(780,.12),75);
+  if(document.documentElement.requestFullscreen){
+    document.documentElement.requestFullscreen().catch(()=>{});
   }
+  beginLevel(1);
+}
 
-  function circleRect(cx,cy,r,rx,ry,rw,rh){
-    const nx=Math.max(rx,Math.min(cx,rx+rw)), ny=Math.max(ry,Math.min(cy,ry+rh));
-    const dx=cx-nx,dy=cy-ny; return dx*dx+dy*dy<r*r;
+actionBtn.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  if(state==='menu'||state==='win')startGame();
+});
+
+switchBtn.addEventListener('pointerdown',e=>{
+  e.preventDefault();e.stopPropagation();
+  if(level===3&&state==='play'){
+    nova.active=!nova.active;luna.active=!luna.active;
+    sparkleSound();setMessage(`${nova.active?'Nova':'Luna'} styrer nu.`,1.1);updateUI();
   }
+});
 
-  function update(dt){
-    t += dt;
-    stars.forEach(s=>{s.x-=s.s*dt;if(s.x<0){s.x=W;s.y=Math.random()*H}});
-    if(messageTimer>0) messageTimer-=dt;
-    if(scene!=='play') return;
+canvas.addEventListener('pointerdown',e=>{
+  e.preventDefault();initAudio();
+  const p=toWorld(e);pointer.down=true;pointer.x=p.x;pointer.y=p.y;
+  canvas.setPointerCapture?.(e.pointerId);
+  if(state==='menu')startGame();
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!pointer.down)return;e.preventDefault();
+  const p=toWorld(e);pointer.x=p.x;pointer.y=p.y;
+});
+function releasePointer(e){pointer.down=false;try{canvas.releasePointerCapture?.(e.pointerId)}catch(_){}}
+canvas.addEventListener('pointerup',releasePointer);
+canvas.addEventListener('pointercancel',releasePointer);
 
-    if(level===1){
-      const a=500;
-      if(keys.ArrowUp||keys.w) rocket.vy-=a*dt;
-      if(keys.ArrowDown||keys.s) rocket.vy+=a*dt;
-      if(keys.ArrowLeft||keys.a) rocket.vx-=a*dt;
-      if(keys.ArrowRight||keys.d) rocket.vx+=a*dt;
-      rocket.vx*=0.95; rocket.vy*=0.95;
-      rocket.x+=rocket.vx*dt; rocket.y+=rocket.vy*dt;
-      rocket.x=Math.max(10,Math.min(W-rocket.w-10,rocket.x));
-      rocket.y=Math.max(30,Math.min(H-rocket.h-30,rocket.y));
-
-      asteroids.forEach(a=>{a.x-=190*dt;if(a.x<-60){a.x=W+Math.random()*500;a.y=60+Math.random()*420}});
-      gems.forEach(g=>{g.x-=190*dt;if(g.x<-30&&!g.got){g.x=W+Math.random()*650;g.y=60+Math.random()*410}});
-      for(const a of asteroids){
-        if(circleRect(a.x,a.y,a.r,rocket.x,rocket.y,rocket.w,rocket.h)){
-          rocket.hp--; a.x=W+300+Math.random()*500; a.y=70+Math.random()*390;
-          setMessage('Bump! Skjoldet mistede energi.',1.5);
-          if(rocket.hp<=0){rocket.hp=3;score=0;setMessage('Raketten blev repareret. Prøv igen!',2);}
-        }
-      }
-      for(const g of gems){
-        if(!g.got&&circleRect(g.x,g.y,g.r,rocket.x,rocket.y,rocket.w,rocket.h)){
-          g.got=true; score++; setMessage('En stjernekrystal!',1);
-          setTimeout(()=>{g.x=W+Math.random()*500;g.y=60+Math.random()*410;g.got=false},800);
-          if(score>=5){scene='transition';setMessage('Flot! Næste stop: Regnbueplaneten.',4);setTimeout(()=>resetLevel(2),2500);}
-        }
-      }
-    }
-
-    if(level===2){
-      moveCharacter(girl1,dt,230);
-      girl2.x += (girl1.x-55-girl2.x)*0.045;
-      girl2.y += (girl1.y+10-girl2.y)*0.045;
-      girl1.y=Math.min(430,Math.max(290,girl1.y));
-      girl2.y=Math.min(435,Math.max(300,girl2.y));
-      for(const p of robotParts){
-        if(!p.got && Math.hypot(girl1.x-p.x,girl1.y-p.y)<52){
-          p.got=true;score++;setMessage('I fandt en robotdel!',1.3);
-          if(score===3){scene='transition';setMessage('Robotten virker igen! Klar til samarbejdsbanen.',4);setTimeout(()=>resetLevel(3),2600);}
-        }
-      }
-    }
-
-    if(level===3){
-      const active=girl1.active?girl1:girl2;
-      moveCharacter(active,dt,girl1.active?220:185);
-      active.y=Math.min(435,Math.max(290,active.y));
-      const inactive=girl1.active?girl2:girl1;
-      inactive.y=Math.min(435,Math.max(290,inactive.y));
-
-      for(const d of doors){
-        if(!d.open && active.x+active.w>d.x && active.x<d.x+d.w && active.y+active.h>d.y){
-          if(active.x<d.x) active.x=d.x-active.w; else active.x=d.x+d.w;
-        }
-      }
-      switches.forEach((sw,i)=>{
-        const who=i===0?girl1:girl2;
-        if(Math.hypot(who.x-sw.x,who.y-sw.y)<58){
-          sw.on=true; doors[i].open=true;
-        }
-      });
-      if(!gems[0].got && Math.hypot(active.x-gems[0].x,active.y-gems[0].y)<55){
-        gems[0].got=true; scene='win'; updateStatus();
-      }
-    }
-    updateStatus();
-  }
-
-  function moveCharacter(g,dt,speed){
-    if(keys.ArrowLeft||keys.a) g.x-=speed*dt;
-    if(keys.ArrowRight||keys.d) g.x+=speed*dt;
-    if(keys.ArrowUp||keys.w) g.y-=speed*dt;
-    if(keys.ArrowDown||keys.s) g.y+=speed*dt;
-    g.x=Math.max(18,Math.min(W-g.w-18,g.x));
-  }
-
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    drawSpace();
-    if(scene==='menu') drawMenu();
-    else {
-      if(level===1) drawLevel1();
-      if(level===2) drawLevel2();
-      if(level===3) drawLevel3();
-      if(scene==='win') drawWin();
-      if(messageTimer>0 || scene==='transition') drawMessage(message);
-    }
-  }
-
-  function drawSpace(){
-    ctx.fillStyle='#05071f';ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#fff';
-    for(const s of stars){ctx.globalAlpha=.4+.6*Math.sin(t*2+s.x);ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();}
-    ctx.globalAlpha=1;
-  }
-
-  function drawMenu(){
-    ctx.textAlign='center';
-    ctx.fillStyle='#ffd85a';ctx.font='900 48px system-ui';ctx.fillText('Stjernens Hemmelige Rute',W/2,120);
-    drawRocket(W/2-45,210,1.4);
-    drawGirl(W/2-95,360,1,true,'#ff78b8');
-    drawGirl(W/2+35,370,.9,false,'#63e6ff');
-    ctx.fillStyle='#eef1ff';ctx.font='700 22px system-ui';ctx.fillText('Tre baner med flyvning, eventyr og samarbejde',W/2,465);
-    ctx.fillStyle='#7cf29a';ctx.font='800 24px system-ui';ctx.fillText('Tryk START',W/2,505);
-  }
-
-  function drawRocket(x,y,s=1){
-    ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-    ctx.fillStyle='#e9ecff';roundRect(0,5,78,32,16,true);
-    ctx.fillStyle='#ff78b8';ctx.beginPath();ctx.moveTo(70,5);ctx.lineTo(95,21);ctx.lineTo(70,37);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#63e6ff';ctx.beginPath();ctx.arc(28,21,10,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#ffd85a';ctx.beginPath();ctx.moveTo(0,13);ctx.lineTo(-22,21);ctx.lineTo(0,29);ctx.fill();
-    ctx.restore();
-  }
-
-  function drawLevel1(){
-    ctx.fillStyle='#172056';ctx.fillRect(0,470,W,70);
-    drawRocket(rocket.x,rocket.y,1);
-    asteroids.forEach(a=>{ctx.fillStyle='#6c6386';ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#4f4868';ctx.beginPath();ctx.arc(a.x-a.r*.25,a.y-a.r*.15,a.r*.25,0,Math.PI*2);ctx.fill();});
-    gems.forEach(g=>{if(!g.got) drawGem(g.x,g.y,g.r)});
-  }
-
-  function drawLevel2(){
-    const grad=ctx.createLinearGradient(0,330,0,H);grad.addColorStop(0,'#7647a8');grad.addColorStop(1,'#2a6d5f');
-    ctx.fillStyle=grad;ctx.fillRect(0,330,W,210);
-    ctx.fillStyle='#9a6dc0';for(let x=0;x<W;x+=120){ctx.beginPath();ctx.arc(x,350,90,Math.PI,0);ctx.fill();}
-    ctx.fillStyle='#7cf29a';ctx.beginPath();ctx.ellipse(850,190,90,45,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#63e6ff';ctx.beginPath();ctx.ellipse(850,190,130,12,0,0,Math.PI*2);ctx.fill();
-    robotParts.forEach(p=>{if(!p.got){ctx.fillStyle='#dfe4ff';ctx.fillRect(p.x-13,p.y-13,26,26);ctx.fillStyle='#ffd85a';ctx.fillRect(p.x-5,p.y-5,10,10);}});
-    drawGirl(girl1.x,girl1.y,1,true,'#ff78b8');
-    drawGirl(girl2.x,girl2.y,.88,false,'#63e6ff');
-    drawRobot(880,430);
-  }
-
-  function drawLevel3(){
-    ctx.fillStyle='#25336f';ctx.fillRect(0,475,W,65);
-    ctx.fillStyle='#393f83';
-    for(let i=0;i<8;i++)ctx.fillRect(i*130,340+(i%2)*25,100,135);
-    doors.forEach(d=>{
-      if(!d.open){ctx.fillStyle='#ff6f91';ctx.fillRect(d.x,d.y,d.w,d.h);
-        ctx.fillStyle='#ffd85a';for(let y=d.y+12;y<d.y+d.h;y+=28)ctx.fillRect(d.x+6,y,d.w-12,8);}
-      else {ctx.strokeStyle='#7cf29a';ctx.lineWidth=4;ctx.strokeRect(d.x,d.y,d.w,d.h);}
-    });
-    switches.forEach(sw=>{ctx.fillStyle=sw.on?'#7cf29a':'#ffd85a';ctx.fillRect(sw.x-18,sw.y-10,36,20);});
-    if(!gems[0].got) drawGem(gems[0].x,gems[0].y,gems[0].r);
-    drawGirl(girl1.x,girl1.y,1,true,'#ff78b8',girl1.active);
-    drawGirl(girl2.x,girl2.y,.88,false,'#63e6ff',girl2.active);
-    ctx.fillStyle='#fff';ctx.font='700 16px system-ui';ctx.textAlign='left';
-    ctx.fillText('Nova-knap',285,505);ctx.fillText('Luna-knap',610,505);
-  }
-
-  function drawGirl(x,y,s=1,older=true,suit='#ff78b8',active=false){
-    ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-    if(active){ctx.strokeStyle='#ffd85a';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(18,28,30,42,0,0,Math.PI*2);ctx.stroke();}
-    ctx.fillStyle=suit;roundRect(2,22,32,36,12,true);
-    ctx.fillStyle='#f3c7a5';ctx.beginPath();ctx.arc(18,14,13,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#f4df8d';
-    ctx.beginPath();ctx.arc(10,8,11,0,Math.PI*2);ctx.arc(22,5,12,0,Math.PI*2);ctx.arc(29,12,10,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#2a2450';ctx.beginPath();ctx.arc(14,14,1.5,0,Math.PI*2);ctx.arc(23,14,1.5,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#2a2450';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(18,18,5,0,Math.PI);ctx.stroke();
-    ctx.fillStyle='#dfe4ff';ctx.fillRect(7,54,8,8);ctx.fillRect(24,54,8,8);
-    ctx.restore();
-  }
-
-  function drawRobot(x,y){
-    ctx.save();ctx.translate(x,y);
-    ctx.fillStyle=score===3?'#7cf29a':'#b7bfdc';roundRect(-28,-42,56,52,10,true);
-    ctx.fillStyle='#63e6ff';ctx.beginPath();ctx.arc(-10,-20,5,0,Math.PI*2);ctx.arc(10,-20,5,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#ffd85a';ctx.fillRect(-16,-4,32,5);
-    ctx.restore();
-  }
-
-  function drawGem(x,y,r){
-    ctx.save();ctx.translate(x,y);ctx.rotate(t);
-    ctx.fillStyle='#ffd85a';ctx.beginPath();
-    for(let i=0;i<10;i++){const rr=i%2===0?r:r*.45, a=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);}
-    ctx.closePath();ctx.fill();ctx.restore();
-  }
-
-  function drawMessage(s){
-    ctx.fillStyle='rgba(10,13,49,.88)';roundRect(120,28,W-240,62,18,true);
-    ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=2;roundRect(120,28,W-240,62,18,false,true);
-    ctx.fillStyle='#fff';ctx.font='800 21px system-ui';ctx.textAlign='center';ctx.fillText(s,W/2,67);
-  }
-
-  function drawWin(){
-    ctx.fillStyle='rgba(5,7,31,.82)';ctx.fillRect(0,0,W,H);
-    ctx.textAlign='center';ctx.fillStyle='#ffd85a';ctx.font='900 52px system-ui';ctx.fillText('I klarede hele ruten!',W/2,165);
-    drawGirl(W/2-85,260,1.25,true,'#ff78b8',true);drawGirl(W/2+25,275,1.1,false,'#63e6ff',true);
-    ctx.fillStyle='#eef1ff';ctx.font='700 24px system-ui';ctx.fillText('Nova og Luna tændte stjernefyret sammen.',W/2,400);
-    ctx.fillStyle='#7cf29a';ctx.font='800 22px system-ui';ctx.fillText('Tryk IGEN for at spille igen',W/2,455);
-  }
-
-  function roundRect(x,y,w,h,r,fill=false,stroke=false){
-    ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill)ctx.fill();if(stroke)ctx.stroke();
-  }
-
-  function handleKeyDown(e){
-    keys[e.key]=true;
-    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
-    if((e.key==='Enter'||e.key===' ') && scene==='menu') resetLevel(1);
-    if((e.key==='q'||e.key==='Q') && level===3 && scene==='play'){
-      girl1.active=!girl1.active;girl2.active=!girl2.active;setMessage(`${girl1.active?'Nova':'Luna'} styrer nu.`,1);
-    }
-    if((e.key==='r'||e.key==='R') && scene==='win') resetLevel(1);
-  }
-  addEventListener('keydown',handleKeyDown);
-  addEventListener('keyup',e=>keys[e.key]=false);
-
-  document.getElementById('startBtn').onclick=()=>{if(scene==='menu')resetLevel(1);};
-  document.getElementById('restartBtn').onclick=()=>resetLevel(1);
-
-  // Mobilknapper
-  document.querySelectorAll('[data-key]').forEach(btn=>{
-    const key=btn.dataset.key;
-    const down=e=>{e.preventDefault();keys[key]=true;};
-    const up=e=>{e.preventDefault();keys[key]=false;};
-    btn.addEventListener('pointerdown',down);
-    btn.addEventListener('pointerup',up);
-    btn.addEventListener('pointercancel',up);
-    btn.addEventListener('pointerleave',up);
+function update(dt){
+  time+=dt;
+  stars.forEach(s=>{
+    s.x-=dt*(12+55*s.z);
+    if(s.x<-5){s.x=VW+5;s.y=rand(0,VH)}
   });
+  if(shake>0)shake=Math.max(0,shake-dt*4);
+  if(flash>0)flash=Math.max(0,flash-dt*3);
+  if(state!=='play')return;
 
-  document.getElementById('switchBtn').addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    if(level===3 && scene==='play'){
-      girl1.active=!girl1.active;girl2.active=!girl2.active;
-      setMessage(`${girl1.active?'Nova':'Luna'} styrer nu.`,1);
+  if(level===1)updateLevel1(dt);
+  else if(level===2)updateLevel2(dt);
+  else if(level===3)updateLevel3(dt);
+  updateUI();
+}
+
+function updateLevel1(dt){
+  if(pointer.down){
+    const tx=clamp(pointer.x-rocket.w*.46,35,VW-rocket.w-35);
+    const ty=clamp(pointer.y-rocket.h*.5,45,VH-rocket.h-38);
+    const follow=1-Math.pow(.0008,dt);
+    rocket.vx+=(tx-rocket.x)*follow*7*dt;
+    rocket.vy+=(ty-rocket.y)*follow*7*dt;
+  }
+  rocket.vx*=Math.pow(.04,dt);rocket.vy*=Math.pow(.04,dt);
+  rocket.x+=rocket.vx;rocket.y+=rocket.vy;
+  rocket.x=clamp(rocket.x,25,VW-rocket.w-25);
+  rocket.y=clamp(rocket.y,45,VH-rocket.h-30);
+  rocket.inv=Math.max(0,rocket.inv-dt);
+  rocket.trail.push({x:rocket.x+6,y:rocket.y+rocket.h*.52,life:1,size:rand(9,20)});
+  if(rocket.trail.length>45)rocket.trail.shift();
+  rocket.trail.forEach(p=>p.life-=dt*2.2);
+
+  asteroids.forEach(a=>{
+    a.x-=dt*250;a.rot+=a.spin*dt;
+    if(a.x<-90){a.x=VW+rand(180,650);a.y=rand(100,640)}
+    if(rocket.inv<=0&&circleRect(a.x,a.y,a.r,rocket.x+8,rocket.y+7,rocket.w-16,rocket.h-14)){
+      rocket.shield--;rocket.inv=1.1;a.x=VW+rand(250,600);a.y=rand(100,630);
+      shake=1;flash=1;bumpSound();setMessage('Pas på! Asteroiden ramte skjoldet.',1.3);
+      if(rocket.shield<=0){
+        rocket.shield=3;score=0;
+        setMessage('Rumrobotten reparerede raketten. Prøv igen!',2.2);
+      }
     }
   });
-
-  document.getElementById('actionBtn').addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    if(scene==='menu') resetLevel(1);
-    else if(scene==='win') resetLevel(1);
+  crystals.forEach(g=>{
+    g.x-=dt*250;g.phase+=dt*2.4;
+    if(g.x<-40){g.x=VW+rand(240,620);g.y=rand(105,620);g.got=false}
+    if(!g.got&&circleRect(g.x,g.y,g.r+5,rocket.x,rocket.y,rocket.w,rocket.h)){
+      g.got=true;score++;sparkleSound();flash=.35;setMessage('Stjernekrystal samlet!',.85);
+      g.x=VW+rand(300,650);g.y=rand(105,620);g.got=false;
+      if(score>=6)nextLevel(2);
+    }
   });
+}
 
-  c.addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    if(scene==='menu') resetLevel(1);
+function moveActiveCharacter(dt){
+  const g=level===3?(nova.active?nova:luna):nova;
+  if(pointer.down){
+    const tx=clamp(pointer.x-g.w*.5,28,VW-g.w-28);
+    const ty=clamp(pointer.y-g.h*.72,330,VH-g.h-28);
+    const f=1-Math.pow(.002,dt);
+    g.x=lerp(g.x,tx,f);g.y=lerp(g.y,ty,f);
+  }
+  return g;
+}
+
+function updateLevel2(dt){
+  moveActiveCharacter(dt);
+  luna.x=lerp(luna.x,nova.x-58,1-Math.pow(.02,dt));
+  luna.y=lerp(luna.y,nova.y+10,1-Math.pow(.02,dt));
+  collectibles.forEach(p=>{
+    if(!p.got&&dist(nova.x+20,nova.y+35,p.x,p.y)<68){
+      p.got=true;score++;sparkleSound();setMessage('En robotdel!',1);
+      if(score===3)nextLevel(3);
+    }
   });
+}
 
-  async function tryFullscreen(){
-    try{
-      if(!document.fullscreenElement && document.documentElement.requestFullscreen){
-        await document.documentElement.requestFullscreen();
-      }
-    }catch(_){}
+function updateLevel3(dt){
+  const active=moveActiveCharacter(dt);
+  doors.forEach(d=>{
+    if(!d.open&&rectOverlap(active.x,active.y,active.w,active.h,d.x,d.y,d.w,d.h)){
+      if(active.x+active.w/2<d.x+d.w/2)active.x=d.x-active.w;
+      else active.x=d.x+d.w;
+    }
+  });
+  switches.forEach((s,i)=>{
+    const g=s.who==='Nova'?nova:luna;
+    if(!s.on&&dist(g.x+g.w/2,g.y+g.h*.72,s.x,s.y)<72){
+      s.on=true;doors[i].open=true;sparkleSound();
+      setMessage(`${s.who} åbnede en stjernedør!`,1.4);
+    }
+  });
+  const gem=crystals[0];
+  if(!gem.got&&dist(active.x+active.w/2,active.y+active.h/2,gem.x,gem.y)<72){
+    gem.got=true;sparkleSound();state='win';updateUI();
   }
-  document.addEventListener('pointerdown',tryFullscreen,{once:true});
+}
 
-  function loop(ts){
-    const dt=Math.min(.033,(ts-last)/1000||0);last=ts;update(dt);draw();requestAnimationFrame(loop);
+function circleRect(cx,cy,r,rx,ry,rw,rh){
+  const nx=clamp(cx,rx,rx+rw),ny=clamp(cy,ry,ry+rh);
+  return (cx-nx)**2+(cy-ny)**2<r*r;
+}
+function rectOverlap(ax,ay,aw,ah,bx,by,bw,bh){
+  return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;
+}
+
+function beginFrame(){
+  const r=stage.getBoundingClientRect();
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,r.width,r.height);
+  ctx.save();
+  const sx=shake?rand(-8,8)*shake:0,sy=shake?rand(-5,5)*shake:0;
+  ctx.translate(offsetX+sx,offsetY+sy);
+  ctx.scale(scale,scale);
+}
+function endFrame(){
+  if(flash>0){
+    ctx.fillStyle=`rgba(255,255,255,${flash*.22})`;
+    ctx.fillRect(0,0,VW,VH);
   }
-  updateStatus();requestAnimationFrame(loop);
+  ctx.restore();
+}
+
+function draw(){
+  beginFrame();
+  drawSpace();
+  if(state==='menu')drawMenu();
+  else{
+    if(level===1)drawLevel1();
+    else if(level===2)drawLevel2();
+    else if(level===3)drawLevel3();
+    if(state==='transition')drawTransition();
+    if(state==='win')drawWin();
+  }
+  if(message&&time<messageUntil)drawMessage(message);
+  endFrame();
+}
+
+function drawSpace(){
+  const bg=ctx.createLinearGradient(0,0,0,VH);
+  bg.addColorStop(0,'#090b31');bg.addColorStop(.55,'#11164a');bg.addColorStop(1,'#07091f');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,VW,VH);
+  nebulae.forEach(n=>{
+    const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+    g.addColorStop(0,n.c);g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+  });
+  stars.forEach(s=>{
+    const a=.4+.5*Math.sin(time*(1+s.z)+s.tw);
+    ctx.globalAlpha=a;ctx.fillStyle=s.z>.75?'#fff7c9':'#dfe7ff';
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+}
+
+function drawMenu(){
+  drawPlanet(1090,170,105,'#9869ea','#ff8fcb',true);
+  drawPlanet(170,610,155,'#3c9ed0','#70f0cf',false);
+  ctx.save();ctx.textAlign='center';
+  const titleGrad=ctx.createLinearGradient(310,0,970,0);
+  titleGrad.addColorStop(0,'#ff9dce');titleGrad.addColorStop(.5,'#fff1a5');titleGrad.addColorStop(1,'#8deaff');
+  ctx.fillStyle=titleGrad;ctx.font='950 66px ui-rounded,system-ui';
+  ctx.shadowColor='rgba(124,99,255,.45)';ctx.shadowBlur=24;
+  ctx.fillText('Stjernens Hemmelige Rute',VW/2,130);
+  ctx.shadowBlur=0;ctx.fillStyle='rgba(241,246,255,.9)';ctx.font='800 24px ui-rounded,system-ui';
+  ctx.fillText('Et rumeventyr med Nova og Luna',VW/2,174);
+  ctx.restore();
+
+  drawRocket(VW/2-155,275,1.7,true);
+  ctx.save();ctx.textAlign='center';ctx.fillStyle='#f8fbff';ctx.font='850 22px ui-rounded,system-ui';
+  ctx.fillText('Begge søstre er klar i raketten',VW/2,520);
+  ctx.fillStyle='#9ff5c7';ctx.font='900 20px ui-rounded,system-ui';
+  ctx.fillText('Tryk START og træk med fingeren for at flyve',VW/2,558);
+  ctx.restore();
+}
+
+function drawLevel1(){
+  drawPlanet(1145,90,72,'#f2a058','#ffd47e',true);
+  rocket.trail.filter(p=>p.life>0).forEach(p=>{
+    ctx.globalAlpha=Math.max(0,p.life)*.65;
+    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size);
+    g.addColorStop(0,'#fff8c8');g.addColorStop(.35,'#ff9b55');g.addColorStop(1,'rgba(255,73,150,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+  });ctx.globalAlpha=1;
+  asteroids.forEach(drawAsteroid);
+  crystals.forEach(g=>{if(!g.got)drawCrystal(g.x,g.y,g.r,g.phase)});
+  ctx.globalAlpha=rocket.inv>0&&Math.floor(time*12)%2===0?.38:1;
+  drawRocket(rocket.x,rocket.y,1,true);
+  ctx.globalAlpha=1;
+  if(pointer.down){
+    ctx.strokeStyle='rgba(125,234,255,.45)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(pointer.x,pointer.y,28+Math.sin(time*8)*4,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(pointer.x,pointer.y,5,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawLevel2(){
+  const sky=ctx.createLinearGradient(0,250,0,VH);
+  sky.addColorStop(0,'rgba(115,83,205,.12)');sky.addColorStop(1,'rgba(18,110,103,.75)');
+  ctx.fillStyle=sky;ctx.fillRect(0,260,VW,VH-260);
+  drawPlanet(1085,125,112,'#ffb066','#ffd997',true);
+  // distant hills
+  ctx.fillStyle='#563f95';
+  ctx.beginPath();ctx.moveTo(0,475);
+  for(let x=0;x<=VW;x+=120)ctx.quadraticCurveTo(x+60,365-rand(0,80),x+120,475);
+  ctx.lineTo(VW,VH);ctx.lineTo(0,VH);ctx.closePath();ctx.fill();
+  const ground=ctx.createLinearGradient(0,480,0,VH);
+  ground.addColorStop(0,'#3b9b88');ground.addColorStop(1,'#173f59');
+  ctx.fillStyle=ground;ctx.fillRect(0,475,VW,VH-475);
+  // glowing plants
+  for(let x=50;x<VW;x+=95){
+    ctx.strokeStyle='rgba(125,234,255,.55)';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(x,610);ctx.quadraticCurveTo(x-10,565,x+8,530);ctx.stroke();
+    ctx.fillStyle='rgba(255,130,189,.85)';ctx.beginPath();ctx.arc(x+8,528,7,0,Math.PI*2);ctx.fill();
+  }
+  collectibles.forEach((p,i)=>{if(!p.got)drawRobotPart(p.x,p.y,i)});
+  drawRobot(1135,530,score);
+  drawGirl(nova.x,nova.y,1,nova.suit,nova.older,false);
+  drawGirl(luna.x,luna.y,.9,luna.suit,luna.older,false);
+}
+
+function drawLevel3(){
+  ctx.fillStyle='rgba(50,67,142,.72)';ctx.fillRect(0,340,VW,380);
+  ctx.fillStyle='#273668';
+  for(let x=0;x<VW;x+=145){
+    roundRect(x+10,420+(x/145%2)*25,110,210,18,true);
+    ctx.fillStyle='rgba(125,234,255,.17)';roundRect(x+30,452+(x/145%2)*25,70,88,12,true);
+    ctx.fillStyle='#273668';
+  }
+  ctx.fillStyle='#17223f';ctx.fillRect(0,610,VW,110);
+  ctx.strokeStyle='rgba(125,234,255,.22)';ctx.lineWidth=2;
+  for(let x=0;x<VW;x+=80){ctx.beginPath();ctx.moveTo(x,610);ctx.lineTo(x+40,720);ctx.stroke()}
+  doors.forEach((d,i)=>drawDoor(d,i));
+  switches.forEach(drawSwitch);
+  if(!crystals[0].got)drawCrystal(crystals[0].x,crystals[0].y,crystals[0].r,time*2);
+  drawGirl(nova.x,nova.y,1,nova.suit,nova.older,nova.active);
+  drawGirl(luna.x,luna.y,.9,luna.suit,luna.older,luna.active);
+}
+
+function drawTransition(){
+  ctx.fillStyle='rgba(4,7,28,.40)';ctx.fillRect(0,0,VW,VH);
+  for(let i=0;i<16;i++){
+    const x=(i*91+time*180)%VW,y=100+(i*137)%520;
+    drawCrystal(x,y,7+(i%3)*3,time*2+i);
+  }
+}
+
+function drawWin(){
+  ctx.fillStyle='rgba(4,7,28,.70)';ctx.fillRect(0,0,VW,VH);
+  for(let i=0;i<80;i++){
+    const a=i*2.399+time*.25,r=(i%17)*14;
+    const x=VW/2+Math.cos(a)*r,y=320+Math.sin(a)*r*.55;
+    ctx.fillStyle=i%3===0?'#ffe47a':i%3===1?'#ff82bd':'#7deaff';
+    ctx.globalAlpha=.55+.45*Math.sin(time*4+i);
+    ctx.beginPath();ctx.arc(x,y,2+(i%4),0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  ctx.textAlign='center';ctx.fillStyle='#ffe987';ctx.font='950 64px ui-rounded,system-ui';
+  ctx.shadowColor='rgba(255,228,122,.5)';ctx.shadowBlur=28;
+  ctx.fillText('Stjernefyret lyser!',VW/2,150);ctx.shadowBlur=0;
+  drawGirl(VW/2-95,275,1.35,nova.suit,true,true);
+  drawGirl(VW/2+35,295,1.2,luna.suit,false,true);
+  ctx.fillStyle='#f7f9ff';ctx.font='850 25px ui-rounded,system-ui';
+  ctx.fillText('Nova og Luna klarede hele ruten sammen',VW/2,500);
+  ctx.fillStyle='#9ff5c7';ctx.font='900 20px ui-rounded,system-ui';
+  ctx.fillText('Tryk SPIL IGEN for et nyt eventyr',VW/2,542);
+}
+
+function drawMessage(text){
+  ctx.save();ctx.textAlign='center';
+  const w=Math.min(910,Math.max(480,ctx.measureText(text).width+100));
+  ctx.fillStyle='rgba(7,10,39,.80)';roundRect(VW/2-w/2,24,w,60,30,true);
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=2;roundRect(VW/2-w/2,24,w,60,30,false,true);
+  ctx.fillStyle='#fff';ctx.font='850 21px ui-rounded,system-ui';ctx.fillText(text,VW/2,63);
+  ctx.restore();
+}
+
+function drawRocket(x,y,s=1,crew=true){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  // glow
+  const glow=ctx.createRadialGradient(70,40,10,70,40,95);
+  glow.addColorStop(0,'rgba(125,234,255,.18)');glow.addColorStop(1,'rgba(125,234,255,0)');
+  ctx.fillStyle=glow;ctx.beginPath();ctx.arc(70,40,95,0,Math.PI*2);ctx.fill();
+  // flame
+  const flame=ctx.createLinearGradient(-30,0,15,0);
+  flame.addColorStop(0,'rgba(255,71,159,0)');flame.addColorStop(.45,'#ff6fae');flame.addColorStop(1,'#fff2a3');
+  ctx.fillStyle=flame;ctx.beginPath();ctx.moveTo(7,27);ctx.quadraticCurveTo(-35,40,7,54);ctx.closePath();ctx.fill();
+  // fins
+  ctx.fillStyle='#ff79b8';
+  ctx.beginPath();ctx.moveTo(52,64);ctx.lineTo(25,87);ctx.lineTo(78,65);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(52,18);ctx.lineTo(27,-2);ctx.lineTo(81,17);ctx.closePath();ctx.fill();
+  // body
+  const body=ctx.createLinearGradient(15,5,115,70);
+  body.addColorStop(0,'#ffffff');body.addColorStop(.55,'#dce8ff');body.addColorStop(1,'#a8b9e2');
+  ctx.fillStyle=body;roundRect(10,13,118,58,29,true);
+  ctx.fillStyle='#ff82bd';ctx.beginPath();ctx.moveTo(109,14);ctx.quadraticCurveTo(150,20,166,42);ctx.quadraticCurveTo(150,64,109,71);ctx.closePath();ctx.fill();
+  // cockpit
+  const glass=ctx.createLinearGradient(55,15,98,58);
+  glass.addColorStop(0,'#d9fbff');glass.addColorStop(.45,'#6fcaea');glass.addColorStop(1,'#345c9d');
+  ctx.fillStyle=glass;ctx.beginPath();ctx.ellipse(79,41,35,24,-.05,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=3;ctx.stroke();
+  if(crew){
+    // two girls clearly visible inside cockpit
+    drawCockpitGirl(67,43,.72,'#ff82bd',true);
+    drawCockpitGirl(91,45,.64,'#7deaff',false);
+  }
+  // body details
+  ctx.fillStyle='#ffe47a';ctx.beginPath();ctx.arc(30,42,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.beginPath();ctx.ellipse(69,29,16,6,-.25,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function drawCockpitGirl(x,y,s,suit,older){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  ctx.fillStyle=suit;ctx.beginPath();ctx.arc(0,13,12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f3c7a5';ctx.beginPath();ctx.arc(0,-1,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f4df8d';
+  ctx.beginPath();ctx.arc(-6,-5,7,0,Math.PI*2);ctx.arc(1,-8,8,0,Math.PI*2);ctx.arc(7,-4,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#2d2852';ctx.beginPath();ctx.arc(-3,0,1.2,0,Math.PI*2);ctx.arc(4,0,1.2,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function drawGirl(x,y,s=1,suit='#ff82bd',older=true,active=false){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  if(active){
+    ctx.strokeStyle='#ffe47a';ctx.lineWidth=5;ctx.shadowColor='#ffe47a';ctx.shadowBlur=18;
+    ctx.beginPath();ctx.ellipse(22,36,39,53,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
+  }
+  ctx.fillStyle='rgba(0,0,0,.22)';ctx.beginPath();ctx.ellipse(22,73,28,7,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=suit;roundRect(4,23,37,46,15,true);
+  ctx.fillStyle='#eef5ff';roundRect(10,33,25,13,6,true);
+  ctx.fillStyle='#f3c7a5';ctx.beginPath();ctx.arc(22,13,15,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f3dd8d';
+  ctx.beginPath();ctx.arc(13,6,12,0,Math.PI*2);ctx.arc(25,2,13,0,Math.PI*2);ctx.arc(34,10,11,0,Math.PI*2);ctx.fill();
+  // fluffy side curls
+  ctx.beginPath();ctx.arc(8,14,8,0,Math.PI*2);ctx.arc(36,17,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#28234c';ctx.beginPath();ctx.arc(17,14,1.7,0,Math.PI*2);ctx.arc(27,14,1.7,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#28234c';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(22,18,6,0,Math.PI);ctx.stroke();
+  ctx.fillStyle='#dce8ff';roundRect(7,64,11,12,4,true);roundRect(28,64,11,12,4,true);
+  ctx.restore();
+}
+function drawAsteroid(a){
+  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.rot);
+  const g=ctx.createRadialGradient(-a.r*.3,-a.r*.35,4,0,0,a.r);
+  g.addColorStop(0,'#aaa1bd');g.addColorStop(.55,'#6f6687');g.addColorStop(1,'#3e3957');
+  ctx.fillStyle=g;ctx.beginPath();
+  for(let i=0;i<12;i++){
+    const ang=i*Math.PI/6,rr=a.r*(.82+.18*Math.sin(i*4.7+a.rot));
+    const px=Math.cos(ang)*rr,py=Math.sin(ang)*rr;
+    i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(50,44,74,.45)';
+  [[-.25,-.2,.2],[.28,.15,.15],[-.05,.35,.12]].forEach(q=>{
+    ctx.beginPath();ctx.arc(a.r*q[0],a.r*q[1],a.r*q[2],0,Math.PI*2);ctx.fill();
+  });
+  ctx.restore();
+}
+function drawCrystal(x,y,r,phase=0){
+  ctx.save();ctx.translate(x,y);ctx.rotate(phase*.35);
+  ctx.shadowColor='#ffe47a';ctx.shadowBlur=22;
+  const g=ctx.createLinearGradient(-r,-r,r,r);
+  g.addColorStop(0,'#fff9ca');g.addColorStop(.45,'#ffe469');g.addColorStop(1,'#ff85bd');
+  ctx.fillStyle=g;ctx.beginPath();
+  for(let i=0;i<10;i++){
+    const rr=i%2===0?r:r*.43,a=-Math.PI/2+i*Math.PI/5;
+    const px=Math.cos(a)*rr,py=Math.sin(a)*rr;i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.restore();
+}
+function drawPlanet(x,y,r,c1,c2,ring){
+  ctx.save();ctx.translate(x,y);
+  if(ring){
+    ctx.strokeStyle='rgba(169,239,255,.55)';ctx.lineWidth=r*.17;
+    ctx.beginPath();ctx.ellipse(0,0,r*1.55,r*.35,-.2,0,Math.PI*2);ctx.stroke();
+  }
+  const g=ctx.createRadialGradient(-r*.35,-r*.38,r*.08,0,0,r);
+  g.addColorStop(0,c2);g.addColorStop(1,c1);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=.16;ctx.fillStyle='#fff';
+  ctx.beginPath();ctx.ellipse(-r*.25,-r*.25,r*.4,r*.17,-.5,0,Math.PI*2);ctx.fill();
+  ctx.restore();ctx.globalAlpha=1;
+}
+function drawRobotPart(x,y,i){
+  ctx.save();ctx.translate(x,y+Math.sin(time*3+i)*7);
+  ctx.shadowColor='#7deaff';ctx.shadowBlur=18;
+  const g=ctx.createLinearGradient(-20,-20,20,20);g.addColorStop(0,'#f4f8ff');g.addColorStop(1,'#8395c8');
+  ctx.fillStyle=g;roundRect(-22,-22,44,44,10,true);
+  ctx.fillStyle=i===0?'#ff82bd':i===1?'#ffe47a':'#7deaff';ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;ctx.restore();
+}
+function drawRobot(x,y,parts){
+  ctx.save();ctx.translate(x,y);
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(0,40,48,10,0,0,Math.PI*2);ctx.fill();
+  const g=ctx.createLinearGradient(-35,-45,35,35);g.addColorStop(0,'#eef5ff');g.addColorStop(1,'#8293c2');
+  ctx.fillStyle=g;roundRect(-39,-48,78,77,18,true);
+  ctx.fillStyle=parts===3?'#92f2be':'#1d285c';roundRect(-27,-33,54,30,11,true);
+  ctx.fillStyle=parts===3?'#17392d':'#7deaff';
+  ctx.beginPath();ctx.arc(-12,-18,5,0,Math.PI*2);ctx.arc(12,-18,5,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#4c5985';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-25,30);ctx.lineTo(-30,48);ctx.moveTo(25,30);ctx.lineTo(30,48);ctx.stroke();
+  ctx.restore();
+}
+function drawDoor(d,i){
+  if(d.open){
+    ctx.strokeStyle='rgba(146,242,190,.65)';ctx.lineWidth=5;roundRect(d.x,d.y,d.w,d.h,12,false,true);
+    return;
+  }
+  const g=ctx.createLinearGradient(d.x,d.y,d.x+d.w,d.y);
+  g.addColorStop(0,i===0?'#ff82bd':'#7deaff');g.addColorStop(1,'#ffe47a');
+  ctx.fillStyle=g;roundRect(d.x,d.y,d.w,d.h,12,true);
+  ctx.shadowColor=i===0?'#ff82bd':'#7deaff';ctx.shadowBlur=20;
+  ctx.fillRect(d.x+8,d.y+12,d.w-16,d.h-24);ctx.shadowBlur=0;
+}
+function drawSwitch(s){
+  ctx.save();ctx.translate(s.x,s.y);
+  ctx.fillStyle=s.on?'#92f2be':'#222b61';roundRect(-42,-17,84,34,17,true);
+  ctx.fillStyle=s.who==='Nova'?'#ff82bd':'#7deaff';ctx.beginPath();ctx.arc(s.on?24:-24,0,12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='850 15px ui-rounded,system-ui';ctx.textAlign='center';ctx.fillText(s.who,0,40);
+  ctx.restore();
+}
+function roundRect(x,y,w,h,r,fill=false,stroke=false){
+  const rr=Math.min(r,w/2,h/2);
+  ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();
+  if(fill)ctx.fill();if(stroke)ctx.stroke();
+}
+
+function loop(ts){
+  const dt=Math.min(.033,(ts-last)/1000||0);last=ts;
+  update(dt);draw();requestAnimationFrame(loop);
+}
+updateUI();requestAnimationFrame(loop);
 })();
 </script>
 </body>
