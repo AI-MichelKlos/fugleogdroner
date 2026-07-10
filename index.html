@@ -1,770 +1,453 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="da">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Operation Grå Vinge</title>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --green:#6b9e78; --red:#c23b2e; --gold:#c9a24b;
-    --ink:#0e1419; --line:#283038;
-    --paper:#efe9dc; --paper-ink:#2c2823; --muted-paper:#8a8072;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%, #16232c, #0a0f14 70%);color:#e7ecea;font-family:'Inter',system-ui,sans-serif;display:flex;justify-content:center;padding:18px 14px 30px}
-  .stage{width:100%;max-width:440px}
-  .head{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:2.5px;font-size:12px;color:var(--muted-paper);text-align:center;margin:2px 0 14px}
-  .card{background:var(--paper);color:var(--paper-ink);border-radius:10px;padding:22px 22px 24px;position:relative;box-shadow:0 20px 46px rgba(0,0,0,.45);overflow:hidden;
-    background-image:repeating-linear-gradient(0deg, rgba(44,40,35,.022) 0 1px, transparent 1px 3px);}
-  .card::after{content:"FORTROLIGT";position:absolute;right:-30px;bottom:6px;font-family:'Oswald',sans-serif;font-size:74px;font-weight:700;color:rgba(44,40,35,.05);letter-spacing:4px;pointer-events:none}
-  .card>*{position:relative;z-index:1}
-  .stamp{position:absolute;top:16px;right:16px;z-index:3;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:2px;font-size:12px;border:2px solid var(--red);color:var(--red);padding:4px 10px;border-radius:4px;transform:rotate(6deg);animation:stampIn .35s cubic-bezier(.2,2.4,.4,1) both}
-  @keyframes stampIn{from{transform:rotate(6deg) scale(2.4);opacity:0}to{transform:rotate(6deg) scale(1);opacity:1}}
-  .meta{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted-paper)}
-  .country{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--green);margin-top:6px}
-  h1.title{font-family:'Oswald',sans-serif;font-size:31px;margin:5px 0 12px;line-height:1.05;color:#211d18}
-  .situation{font-size:15.5px;line-height:1.55;color:#2c2823;margin:0}
-  .situation+.situation{margin-top:10px}
-  .opgaver{margin:14px 0 4px;border:1px dashed #b9ae99;border-radius:8px;padding:12px 14px;background:rgba(255,255,255,.35)}
-  .opg{display:flex;gap:10px;align-items:baseline;font-size:14.5px;line-height:1.5;padding:3px 0}
-  .opg b{font-family:'Space Mono',monospace;font-size:11px;color:var(--red);letter-spacing:1px;flex:none}
-  .advarsel{margin-top:12px;font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.55;color:#7a5230;background:rgba(201,162,75,.14);border-left:3px solid var(--gold);padding:8px 10px;border-radius:0 6px 6px 0}
-  .verdict{display:flex;align-items:center;gap:9px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:19px;margin:4px 0 10px}
-  .verdict .dot{width:11px;height:11px;border-radius:50%;flex:none}
-  .rang{display:inline-block;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:14px;background:var(--ink);color:var(--gold);padding:5px 12px;border-radius:4px;margin:2px 0 12px}
-  .citat{margin:14px 0 4px;font-size:14.5px;line-height:1.55;font-style:italic;color:#4a4438;border-left:3px solid #c9c0ae;padding-left:12px}
-  .citat span{display:block;font-style:normal;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted-paper);margin-top:5px}
-  .fotos{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0 4px;justify-content:center}
-  .foto{background:#fdfcf8;padding:7px 7px 9px;border-radius:2px;box-shadow:0 6px 14px rgba(0,0,0,.22);transform:rotate(var(--rot));width:128px}
-  .foto canvas{display:block;width:114px;height:100px;border-radius:1px}
-  .foto p{margin:6px 0 0;font-family:'Space Mono',monospace;font-size:8.5px;line-height:1.45;letter-spacing:.2px;color:#3c372e;text-transform:uppercase}
-  .best{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted-paper);margin-top:12px}
-  .best b{color:#7a5230}
-  .phone{margin:16px auto 4px;max-width:300px;background:#0e1419;border-radius:20px;padding:12px 12px 14px;border:1px solid var(--line);box-shadow:0 10px 24px rgba(0,0,0,.3)}
-  .phone .top{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#8a9095;text-align:center;border-bottom:1px solid #1c252d;padding-bottom:8px;margin-bottom:10px}
-  .bub{max-width:82%;padding:8px 11px;border-radius:14px;font-size:13px;line-height:1.45;margin:6px 0;animation:bubIn .25s ease both}
-  .bub.mig{background:var(--green);color:#0e1419;margin-left:auto;border-bottom-right-radius:4px}
-  .bub.dem{background:#1c252d;color:#e7ecea;margin-right:auto;border-bottom-left-radius:4px}
-  .bub.status{background:none;color:#5f6a70;font-family:'Space Mono',monospace;font-size:9.5px;text-align:right;padding:0 4px;margin:2px 0}
-  .bub .hvem{display:block;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1.5px;opacity:.65;margin-bottom:3px;text-transform:uppercase}
-  @keyframes bubIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5f6a70;margin:0 2px;animation:tp 1s infinite}
-  .typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
-  @keyframes tp{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-4px);opacity:1}}
-  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-  .btn{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1.2px;font-size:14px;padding:12px 18px;border-radius:6px;border:1px solid var(--line);background:#1c252d;color:#e7ecea;cursor:pointer;transition:transform .05s}
-  .btn:active{transform:translateY(1px)}
-  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-  .btn.go{background:var(--green);border-color:var(--green);color:#0e1419;font-weight:600}
-  .btn.big{font-size:15px;padding:13px 22px}
-  .wrap{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#0b1118;box-shadow:0 20px 46px rgba(0,0,0,.45)}
-  .hud{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.3px;color:#cdd6d6;padding:9px 12px;background:#11181f;border-bottom:1px solid var(--line)}
-  .hud b{color:var(--gold)}
-  .hud button{background:none;border:1px solid var(--line);border-radius:5px;color:#cdd6d6;font-size:13px;cursor:pointer;padding:2px 8px;line-height:1.4}
-  canvas.spil{display:block;width:100%;height:auto;cursor:crosshair;touch-action:manipulation;background:#9fc0d8}
-  .foot{text-align:center;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.4px;color:var(--muted-paper);margin-top:16px;line-height:1.6}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stjernens Hemmelige Rute</title>
+  <style>
+    :root{
+      --bg:#090b2b; --panel:#15194a; --accent:#ffd85a; --pink:#ff78b8;
+      --cyan:#63e6ff; --white:#f8f8ff; --green:#7cf29a;
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden}
+    body{
+      display:grid; place-items:center;
+      background:radial-gradient(circle at 50% 20%,#252b77 0,#0a0d31 45%,#040516 100%);
+      color:var(--white); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      touch-action:none; overscroll-behavior:none;
+    }
+    #wrap{
+      width:100vw; height:100vh; padding:8px;
+      display:grid; grid-template-rows:auto 1fr auto;
+    }
+    #topbar{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      background:rgba(21,25,74,.92); border:2px solid rgba(255,255,255,.15);
+      border-radius:16px; padding:10px 14px; margin-bottom:10px;
+      box-shadow:0 8px 28px rgba(0,0,0,.3);
+    }
+    #title{font-weight:900; letter-spacing:.3px}
+    #status{font-weight:700; color:var(--accent); text-align:right}
+    canvas{
+      width:100%; height:100%; min-height:0; display:block; border-radius:18px;
+      background:#05071f; border:3px solid rgba(255,255,255,.16);
+      box-shadow:0 16px 50px rgba(0,0,0,.45);
+      touch-action:none;
+    }
+    #help{
+      margin-top:8px; text-align:center; color:#dce2ff; font-size:13px;
+      background:rgba(21,25,74,.75); border-radius:14px; padding:6px 10px;
+    }
+    .btns{display:flex; justify-content:center; gap:8px; margin-top:6px; flex-wrap:wrap}
+    button{
+      border:0; border-radius:999px; padding:10px 16px; font-weight:800;
+      background:var(--accent); color:#2a2450; cursor:pointer;
+      box-shadow:0 4px 0 #c69f28;
+    }
+    #mobileControls{
+      position:fixed; inset:0; pointer-events:none; z-index:10;
+      display:flex; justify-content:space-between; align-items:flex-end;
+      padding:0 22px 18px;
+    }
+    .pad,.actions{pointer-events:auto; display:grid; gap:8px}
+    .pad{grid-template-columns:64px 64px 64px; grid-template-rows:58px 58px}
+    .pad button,.actions button{
+      width:64px; height:58px; padding:0; font-size:26px;
+      background:rgba(255,255,255,.88); box-shadow:0 4px 0 rgba(0,0,0,.25);
+      user-select:none; -webkit-user-select:none;
+    }
+    .pad .up{grid-column:2}.pad .left{grid-column:1;grid-row:2}
+    .pad .down{grid-column:2;grid-row:2}.pad .right{grid-column:3;grid-row:2}
+    .actions{grid-template-columns:82px; align-content:end}
+    .actions button{width:82px;height:64px;font-size:18px;background:rgba(255,216,90,.94)}
+    #rotateNotice{
+      display:none; position:fixed; inset:0; z-index:50; place-items:center;
+      background:#090b2b; color:white; text-align:center; padding:30px;
+    }
+    #rotateNotice div{max-width:420px;font-size:24px;font-weight:900;line-height:1.35}
+    @media (orientation:portrait){
+      #rotateNotice{display:grid}
+      #wrap,#mobileControls{display:none}
+    }
+    @media (max-height:500px){
+      #topbar{padding:6px 10px;margin-bottom:6px;font-size:14px}
+      #help{display:none}
+      #wrap{grid-template-rows:auto 1fr}
+      .pad{grid-template-columns:56px 56px 56px;grid-template-rows:50px 50px}
+      .pad button{width:56px;height:50px}
+      .actions button{width:76px;height:56px}
+    }
+    button:active{transform:translateY(2px); box-shadow:0 2px 0 #c69f28}
+  </style>
 </head>
 <body>
-  <div class="stage">
-    <div class="head" id="head">Operation Grå Vinge</div>
-    <div id="app"></div>
-    <div class="foot">Satire. Enhver fugl i denne operation er fiktiv og fløj frivilligt.<br>Grafik og databehandling: en meget tvivlsom kilde.</div>
+<div id="wrap">
+  <div id="topbar">
+    <div id="title">🚀 Stjernens Hemmelige Rute</div>
+    <div id="status">Tryk START</div>
   </div>
+  <canvas id="game" width="960" height="540" aria-label="Rumspil"></canvas>
+  <div id="help">
+    Mobilspil i vandret format · Brug knapperne på skærmen
+    <div class="btns">
+      <button id="startBtn">Start / fortsæt</button>
+      <button id="restartBtn">Start forfra</button>
+    </div>
+  </div>
+</div>
+
+<div id="mobileControls">
+  <div class="pad">
+    <button class="up" data-key="ArrowUp">▲</button>
+    <button class="left" data-key="ArrowLeft">◀</button>
+    <button class="down" data-key="ArrowDown">▼</button>
+    <button class="right" data-key="ArrowRight">▶</button>
+  </div>
+  <div class="actions">
+    <button id="switchBtn">SKIFT</button>
+    <button id="actionBtn">START</button>
+  </div>
+</div>
+
+<div id="rotateNotice"><div>📱 Drej telefonen vandret for at spille</div></div>
+
 <script>
-(function(){
-  const app = document.getElementById('app');
-  const head = document.getElementById('head');
-  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let RAF = null;
-  function cancel(){ if(RAF){ cancelAnimationFrame(RAF); RAF=null; } }
+(() => {
+  const c = document.getElementById('game');
+  const ctx = c.getContext('2d');
+  const statusEl = document.getElementById('status');
+  const keys = {};
+  let scene = 'menu', level = 0, t = 0, last = 0;
+  let score = 0, message = '', messageTimer = 0;
 
-  /* ---------- Lyd (lille synth, ingen filer) ---------- */
-  const snd = { on:true, ctx:null };
-  function ac(){ if(!snd.ctx){ try{ snd.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ snd.on=false; } } return snd.ctx; }
-  function tone(f0,f1,dur,type,vol){
-    if(!snd.on) return; const c=ac(); if(!c) return;
-    const o=c.createOscillator(), g=c.createGain(), t=c.currentTime;
-    o.type=type||'square'; o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+dur);
-    g.gain.setValueAtTime(vol||.15,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02);
-  }
-  function noise(dur,vol,hp){
-    if(!snd.on) return; const c=ac(); if(!c) return;
-    const n=Math.floor(c.sampleRate*dur), b=c.createBuffer(1,n,c.sampleRate), d=b.getChannelData(0);
-    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
-    const s=c.createBufferSource(); s.buffer=b;
-    const f=c.createBiquadFilter(); f.type=hp?'highpass':'lowpass'; f.frequency.value=hp?1800:900;
-    const g=c.createGain(); g.gain.value=vol||.2;
-    s.connect(f); f.connect(g); g.connect(c.destination); s.start();
-  }
-  const sPop   = ()=>{ tone(660,990,.09,'square',.12); };
-  const sSpray = ()=>{ noise(.16,.14,true); };
-  const sStamp = ()=>{ tone(160,70,.12,'square',.2); noise(.06,.12,false); };
-  const sSkud  = ()=>{ noise(.1,.3,false); tone(220,60,.08,'sawtooth',.12); };
-  const sHit   = ()=>{ tone(880,240,.18,'triangle',.16); };
-  const sAlarm = ()=>{ tone(520,520,.12,'square',.14); setTimeout(()=>tone(392,392,.16,'square',.14),130); };
-  const sKlik  = ()=>{ tone(320,320,.04,'square',.12); setTimeout(()=>tone(540,540,.05,'square',.12),110); };
-  const sFanfare = ok=>{ if(ok){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,f,.14,'triangle',.13), i*110)); } else { tone(300,140,.5,'sawtooth',.1); } };
+  const W = c.width, H = c.height;
+  const stars = Array.from({length:140},()=>({
+    x:Math.random()*W, y:Math.random()*H, r:Math.random()*2+0.5, s:Math.random()*40+15
+  }));
 
-  /* ---------- Fugletegning med baskende vinger ---------- */
-  const KYR=['\u042f','\u0416','\u0424','\u0414','\u0411','\u0413','\u0417','\u041b','\u041f','\u0426','\u0427','\u0428','\u042e'];
-  const DELE=['\u0420\u041e\u0421','\u0421\u0418\u042f']; // tilsammen: \u0420\u041e\u0421\u0421\u0418\u042f
-  const GRAA='#8a9095';
-  function mix(a,b,t){
-    const pa=[parseInt(a.slice(1,3),16),parseInt(a.slice(3,5),16),parseInt(a.slice(5,7),16)];
-    const pb=[parseInt(b.slice(1,3),16),parseInt(b.slice(3,5),16),parseInt(b.slice(5,7),16)];
-    const m=pa.map((v,i)=>Math.round(v+(pb[i]-v)*t));
-    return 'rgb('+m[0]+','+m[1]+','+m[2]+')';
-  }
-  function drawBird(ctx,b){
-    const d = b.face || (b.vx<0?-1:1);
-    const t = (b.paint||0);
-    const kro = mix(b.col, GRAA, t);
-    const vin = mix(b.wing, '#6f767b', t);
-    const flap = Math.sin(b.bob*2.1);
-    const r=b.r;
-    ctx.save(); ctx.translate(b.x,b.y); ctx.scale(d,1); if(b.spin) ctx.rotate(b.spin);
-    // hale
-    ctx.fillStyle=vin;
-    ctx.beginPath(); ctx.moveTo(-r*0.7,0); ctx.lineTo(-r*1.5,-r*0.35); ctx.lineTo(-r*1.5,r*0.3); ctx.closePath(); ctx.fill();
-    if(b.k==='oern'){ ctx.fillStyle='#f2efe6'; ctx.beginPath(); ctx.moveTo(-r*0.9,0); ctx.lineTo(-r*1.5,-r*0.28); ctx.lineTo(-r*1.5,r*0.24); ctx.closePath(); ctx.fill(); }
-    // bagvinge
-    ctx.fillStyle=mix(vin,'#000000',.12);
-    ctx.beginPath(); ctx.moveTo(-r*0.1,-r*0.1);
-    ctx.quadraticCurveTo(-r*0.9, -r*0.1 - flap*r*0.95, -r*1.35, -r*0.15 - flap*r*1.25);
-    ctx.quadraticCurveTo(-r*0.75, r*0.22 - flap*r*0.45, -r*0.05, r*0.18); ctx.closePath(); ctx.fill();
-    // krop
-    ctx.fillStyle=kro;
-    ctx.beginPath(); ctx.ellipse(0,0,r,r*0.6,0,0,6.283); ctx.fill();
-    // hoved
-    ctx.beginPath(); ctx.arc(r*0.85,-r*0.32,r*0.42,0,6.283); ctx.fill();
-    if(b.k==='oern'){ ctx.fillStyle='#f2efe6'; ctx.beginPath(); ctx.arc(r*0.85,-r*0.32,r*0.42,0,6.283); ctx.fill(); }
-    if(b.k==='due' && t<0.5){ ctx.fillStyle='rgba(96,168,120,'+(0.8-t)+')'; ctx.beginPath(); ctx.arc(r*0.55,-r*0.18,r*0.2,0,6.283); ctx.fill(); }
-    // naeb
-    ctx.fillStyle = b.k==='krage' ? '#3a3f45' : (b.k==='oern' ? '#d9a02e' : '#e0a43e');
-    ctx.beginPath(); ctx.moveTo(r*1.2,-r*0.36); ctx.lineTo(r*1.66,-r*0.2); ctx.lineTo(r*1.18,-r*0.08); ctx.closePath(); ctx.fill();
-    // oeje
-    ctx.fillStyle='#1a1d20'; ctx.beginPath(); ctx.arc(r*0.95,-r*0.4,Math.max(1.4,r*0.09),0,6.283); ctx.fill();
-    // forvinge
-    ctx.fillStyle=vin;
-    ctx.beginPath(); ctx.moveTo(r*0.15,-r*0.12);
-    ctx.quadraticCurveTo(-r*0.6, -r*0.15 - flap*r*1.15, -r*1.15, -r*0.25 - flap*r*1.5);
-    ctx.quadraticCurveTo(-r*0.5, r*0.28 - flap*r*0.5, r*0.2, r*0.2); ctx.closePath(); ctx.fill();
-    // kyrilliske maerker (et eller flere bogstaver)
-    if(b.letter && t>0.85){
-      const s=String(b.letter);
-      ctx.font='bold '+Math.round(r*(s.length>1?0.84:1.05))+"px 'Space Mono', monospace";
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.save(); ctx.scale(d,1);
-      ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=Math.max(1.5,r*0.09);
-      ctx.strokeText(s, d*(-r*0.15), -r*0.05);
-      ctx.fillStyle='#c0392b'; ctx.fillText(s, d*(-r*0.15), -r*0.05);
-      ctx.restore();
+  const girl1 = {x:160,y:395,w:38,h:58,active:true,name:'Nova',age:8};
+  const girl2 = {x:220,y:405,w:34,h:50,active:false,name:'Luna',age:4};
+
+  let rocket, asteroids, gems, planetItems, robotParts, doors, switches;
+
+  function resetLevel(n){
+    level = n; score = 0; message = ''; messageTimer = 0;
+    if(n===1){
+      rocket={x:120,y:270,vx:0,vy:0,w:90,h:42,hp:3};
+      asteroids=[]; gems=[];
+      for(let i=0;i<10;i++) asteroids.push({x:650+i*180,y:80+Math.random()*360,r:24+Math.random()*25});
+      for(let i=0;i<8;i++) gems.push({x:480+i*210,y:80+Math.random()*370,r:12,got:false});
+      scene='play';
+      setMessage('Bane 1: Flyv gennem asteroiderne og saml 5 stjerner!');
+    } else if(n===2){
+      Object.assign(girl1,{x:110,y:395}); Object.assign(girl2,{x:160,y:405});
+      planetItems=[
+        {x:350,y:410,type:'crystal',got:false},
+        {x:535,y:340,type:'crystal',got:false},
+        {x:760,y:400,type:'crystal',got:false}
+      ];
+      robotParts=[
+        {x:285,y:450,got:false},{x:610,y:455,got:false},{x:820,y:300,got:false}
+      ];
+      scene='play';
+      setMessage('Bane 2: Udforsk planeten og find 3 robotdele.');
+    } else if(n===3){
+      Object.assign(girl1,{x:120,y:420,active:true});
+      Object.assign(girl2,{x:170,y:430,active:false});
+      doors=[{x:420,y:310,w:28,h:170,open:false},{x:735,y:260,w:28,h:220,open:false}];
+      switches=[
+        {x:330,y:455,who:1,on:false},
+        {x:655,y:455,who:2,on:false}
+      ];
+      gems=[{x:875,y:420,r:18,got:false}];
+      scene='play';
+      setMessage('Bane 3: Skift med Q. Nova og Luna skal hjælpe hinanden.');
     }
-    // drone-udstyr: rotorer, antenne, LED og landingsben
-    if(b.drone){
-      ctx.strokeStyle='#4a5055'; ctx.lineWidth=Math.max(1.5,r*0.1); ctx.lineCap='round';
-      // to rotormaster
-      [[-r*0.55,-r*0.45],[r*0.35,-r*0.5]].forEach(function(m,mi){
-        ctx.beginPath(); ctx.moveTo(m[0],m[1]); ctx.lineTo(m[0],m[1]-r*0.55); ctx.stroke();
-        // roterende propel (sloeret ellipse + streg)
-        const pa=b.bob*4+mi*1.7, pl=r*0.62;
-        ctx.strokeStyle='rgba(74,80,85,.35)';
-        ctx.beginPath(); ctx.ellipse(m[0],m[1]-r*0.55,pl,pl*0.22,0,0,6.283); ctx.stroke();
-        ctx.strokeStyle='#33383c';
-        ctx.beginPath(); ctx.moveTo(m[0]-Math.cos(pa)*pl,m[1]-r*0.55-Math.sin(pa)*pl*0.22);
-        ctx.lineTo(m[0]+Math.cos(pa)*pl,m[1]-r*0.55+Math.sin(pa)*pl*0.22); ctx.stroke();
-        ctx.strokeStyle='#4a5055';
+    updateStatus();
+  }
+
+  function setMessage(s,secs=3){ message=s; messageTimer=secs; }
+
+  function updateStatus(){
+    const actionBtn=document.getElementById('actionBtn');
+    const switchBtn=document.getElementById('switchBtn');
+    if(actionBtn) actionBtn.textContent=scene==='menu'?'START':scene==='win'?'IGEN':'SPIL';
+    if(switchBtn) switchBtn.style.opacity=(level===3&&scene==='play')?'1':'.45';
+    if(scene==='menu') statusEl.textContent='Tryk START';
+    else if(scene==='win') statusEl.textContent='Spillet er gennemført!';
+    else if(level===1) statusEl.textContent=`Bane 1 · Stjerner: ${score}/5 · Skjold: ${rocket.hp}`;
+    else if(level===2) statusEl.textContent=`Bane 2 · Robotdele: ${score}/3`;
+    else if(level===3) statusEl.textContent=`Bane 3 · Aktiv: ${girl1.active?'Nova':'Luna'}`;
+  }
+
+  function circleRect(cx,cy,r,rx,ry,rw,rh){
+    const nx=Math.max(rx,Math.min(cx,rx+rw)), ny=Math.max(ry,Math.min(cy,ry+rh));
+    const dx=cx-nx,dy=cy-ny; return dx*dx+dy*dy<r*r;
+  }
+
+  function update(dt){
+    t += dt;
+    stars.forEach(s=>{s.x-=s.s*dt;if(s.x<0){s.x=W;s.y=Math.random()*H}});
+    if(messageTimer>0) messageTimer-=dt;
+    if(scene!=='play') return;
+
+    if(level===1){
+      const a=500;
+      if(keys.ArrowUp||keys.w) rocket.vy-=a*dt;
+      if(keys.ArrowDown||keys.s) rocket.vy+=a*dt;
+      if(keys.ArrowLeft||keys.a) rocket.vx-=a*dt;
+      if(keys.ArrowRight||keys.d) rocket.vx+=a*dt;
+      rocket.vx*=0.95; rocket.vy*=0.95;
+      rocket.x+=rocket.vx*dt; rocket.y+=rocket.vy*dt;
+      rocket.x=Math.max(10,Math.min(W-rocket.w-10,rocket.x));
+      rocket.y=Math.max(30,Math.min(H-rocket.h-30,rocket.y));
+
+      asteroids.forEach(a=>{a.x-=190*dt;if(a.x<-60){a.x=W+Math.random()*500;a.y=60+Math.random()*420}});
+      gems.forEach(g=>{g.x-=190*dt;if(g.x<-30&&!g.got){g.x=W+Math.random()*650;g.y=60+Math.random()*410}});
+      for(const a of asteroids){
+        if(circleRect(a.x,a.y,a.r,rocket.x,rocket.y,rocket.w,rocket.h)){
+          rocket.hp--; a.x=W+300+Math.random()*500; a.y=70+Math.random()*390;
+          setMessage('Bump! Skjoldet mistede energi.',1.5);
+          if(rocket.hp<=0){rocket.hp=3;score=0;setMessage('Raketten blev repareret. Prøv igen!',2);}
+        }
+      }
+      for(const g of gems){
+        if(!g.got&&circleRect(g.x,g.y,g.r,rocket.x,rocket.y,rocket.w,rocket.h)){
+          g.got=true; score++; setMessage('En stjernekrystal!',1);
+          setTimeout(()=>{g.x=W+Math.random()*500;g.y=60+Math.random()*410;g.got=false},800);
+          if(score>=5){scene='transition';setMessage('Flot! Næste stop: Regnbueplaneten.',4);setTimeout(()=>resetLevel(2),2500);}
+        }
+      }
+    }
+
+    if(level===2){
+      moveCharacter(girl1,dt,230);
+      girl2.x += (girl1.x-55-girl2.x)*0.045;
+      girl2.y += (girl1.y+10-girl2.y)*0.045;
+      girl1.y=Math.min(430,Math.max(290,girl1.y));
+      girl2.y=Math.min(435,Math.max(300,girl2.y));
+      for(const p of robotParts){
+        if(!p.got && Math.hypot(girl1.x-p.x,girl1.y-p.y)<52){
+          p.got=true;score++;setMessage('I fandt en robotdel!',1.3);
+          if(score===3){scene='transition';setMessage('Robotten virker igen! Klar til samarbejdsbanen.',4);setTimeout(()=>resetLevel(3),2600);}
+        }
+      }
+    }
+
+    if(level===3){
+      const active=girl1.active?girl1:girl2;
+      moveCharacter(active,dt,girl1.active?220:185);
+      active.y=Math.min(435,Math.max(290,active.y));
+      const inactive=girl1.active?girl2:girl1;
+      inactive.y=Math.min(435,Math.max(290,inactive.y));
+
+      for(const d of doors){
+        if(!d.open && active.x+active.w>d.x && active.x<d.x+d.w && active.y+active.h>d.y){
+          if(active.x<d.x) active.x=d.x-active.w; else active.x=d.x+d.w;
+        }
+      }
+      switches.forEach((sw,i)=>{
+        const who=i===0?girl1:girl2;
+        if(Math.hypot(who.x-sw.x,who.y-sw.y)<58){
+          sw.on=true; doors[i].open=true;
+        }
       });
-      // antenne paa hovedet
-      ctx.beginPath(); ctx.moveTo(r*0.85,-r*0.72); ctx.lineTo(r*0.85,-r*1.15); ctx.stroke();
-      // blinkende LED
-      const on = Math.floor(b.bob*1.6)%2===0;
-      ctx.fillStyle= on ? '#e74c3c' : '#5a1f18';
-      ctx.beginPath(); ctx.arc(r*0.85,-r*1.15,Math.max(1.6,r*0.11),0,6.283); ctx.fill();
-      if(on){ ctx.fillStyle='rgba(231,76,60,.25)'; ctx.beginPath(); ctx.arc(r*0.85,-r*1.15,r*0.28,0,6.283); ctx.fill(); }
-      // landingsben
-      ctx.strokeStyle='#4a5055';
-      ctx.beginPath(); ctx.moveTo(-r*0.35,r*0.5); ctx.lineTo(-r*0.35,r*0.85); ctx.moveTo(r*0.25,r*0.5); ctx.lineTo(r*0.25,r*0.85); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-r*0.5,r*0.85); ctx.lineTo(r*0.4,r*0.85); ctx.stroke();
+      if(!gems[0].got && Math.hypot(active.x-gems[0].x,active.y-gems[0].y)<55){
+        gems[0].got=true; scene='win'; updateStatus();
+      }
     }
+    updateStatus();
+  }
+
+  function moveCharacter(g,dt,speed){
+    if(keys.ArrowLeft||keys.a) g.x-=speed*dt;
+    if(keys.ArrowRight||keys.d) g.x+=speed*dt;
+    if(keys.ArrowUp||keys.w) g.y-=speed*dt;
+    if(keys.ArrowDown||keys.s) g.y+=speed*dt;
+    g.x=Math.max(18,Math.min(W-g.w-18,g.x));
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    drawSpace();
+    if(scene==='menu') drawMenu();
+    else {
+      if(level===1) drawLevel1();
+      if(level===2) drawLevel2();
+      if(level===3) drawLevel3();
+      if(scene==='win') drawWin();
+      if(messageTimer>0 || scene==='transition') drawMessage(message);
+    }
+  }
+
+  function drawSpace(){
+    ctx.fillStyle='#05071f';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';
+    for(const s of stars){ctx.globalAlpha=.4+.6*Math.sin(t*2+s.x);ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();}
+    ctx.globalAlpha=1;
+  }
+
+  function drawMenu(){
+    ctx.textAlign='center';
+    ctx.fillStyle='#ffd85a';ctx.font='900 48px system-ui';ctx.fillText('Stjernens Hemmelige Rute',W/2,120);
+    drawRocket(W/2-45,210,1.4);
+    drawGirl(W/2-95,360,1,true,'#ff78b8');
+    drawGirl(W/2+35,370,.9,false,'#63e6ff');
+    ctx.fillStyle='#eef1ff';ctx.font='700 22px system-ui';ctx.fillText('Tre baner med flyvning, eventyr og samarbejde',W/2,465);
+    ctx.fillStyle='#7cf29a';ctx.font='800 24px system-ui';ctx.fillText('Tryk START',W/2,505);
+  }
+
+  function drawRocket(x,y,s=1){
+    ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+    ctx.fillStyle='#e9ecff';roundRect(0,5,78,32,16,true);
+    ctx.fillStyle='#ff78b8';ctx.beginPath();ctx.moveTo(70,5);ctx.lineTo(95,21);ctx.lineTo(70,37);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#63e6ff';ctx.beginPath();ctx.arc(28,21,10,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffd85a';ctx.beginPath();ctx.moveTo(0,13);ctx.lineTo(-22,21);ctx.lineTo(0,29);ctx.fill();
     ctx.restore();
   }
 
-  /* ---------- Briefing ---------- */
-  function briefing(){
-    cancel();
-    head.textContent = 'Operation Grå Vinge · briefing';
-    const best = +(localStorage.getItem('graaVingeRekord2')||0);
-    app.innerHTML = `
-      <div class="card">
-        <div class="stamp">Fortroligt</div>
-        <div class="meta">Forsvarsministeriet · centralt placeret person · sagsnr. 883/2004-B</div>
-        <div class="country">Danmark</div>
-        <h1 class="title">Operation Grå Vinge</h1>
-        <p class="situation">En fiktiv, centralt placeret person i Forsvarsministeriet har hyret dig til en yderst tvivlsom opgave. Konklusionen ligger allerede fast: der VAR russiske droner over Danmark. Der mangler kun én lille detalje, nemlig beviserne, som skal på bordet hos en lige så centralt placeret person i Statsministeriet.</p>
-        <div class="opgaver">
-          <div class="opg"><b>OPGAVE A</b><span>Fang to fugle med et helt almindeligt, meget diskret net. To er nok, budgettet er stramt.</span></div>
-          <div class="opg"><b>OPGAVE B</b><span>Mal dem grå med pensel og stemp ordet \u0420\u041e\u0421\u0421\u0418\u042f hen over vingerne, tre bogstaver pr. fugl.</span></div>
-          <div class="opg"><b>OPGAVE C</b><span>Montér rotorer, slip dem løs blandt de almindelige fugle og skyd de rigtige ned i beviskurven.</span></div>
-        </div>
-        <div class="advarsel">ADVARSEL: Rør IKKE havørnen. Den er fredet, og Dansk Ornitologisk Forening har flere advokater end vi har samvittighed.</div>
-        <p class="situation" style="color:#6f6757;margin-top:12px">(Enhver lighed med virkelige efterretningsvurderinger er helt og aldeles utilsigtet.)</p>
-        ${best?'<div class="best">Personlig rekord: <b>'+best+' af 2 orddele</b></div>':''}
-        <div class="actions">
-          <button class="btn go big" id="start">Start operationen ▸</button>
-        </div>
-      </div>`;
-    document.getElementById('start').onclick = game;
+  function drawLevel1(){
+    ctx.fillStyle='#172056';ctx.fillRect(0,470,W,70);
+    drawRocket(rocket.x,rocket.y,1);
+    asteroids.forEach(a=>{ctx.fillStyle='#6c6386';ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#4f4868';ctx.beginPath();ctx.arc(a.x-a.r*.25,a.y-a.r*.15,a.r*.25,0,Math.PI*2);ctx.fill();});
+    gems.forEach(g=>{if(!g.got) drawGem(g.x,g.y,g.r)});
   }
 
-  /* ---------- Spillet ---------- */
-  function game(){
-    cancel(); ac();
-    head.textContent = 'Operation Grå Vinge';
-    const W=400, H=620;
-    app.innerHTML = `
-      <div class="wrap">
-        <div class="hud"><span id="phase">Trin 1: fang fuglene</span><span style="display:flex;gap:10px;align-items:center"><span id="stat"></span><button id="mute" title="Lyd til/fra">${snd.on?'\uD83D\uDD0A':'\uD83D\uDD07'}</button></span></div>
-        <canvas class="spil" id="cv" width="${W}" height="${H}"></canvas>
-      </div>`;
-    const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-    const phaseEl=document.getElementById('phase'), statEl=document.getElementById('stat');
-    document.getElementById('mute').onclick=function(){ snd.on=!snd.on; this.textContent=snd.on?'\uD83D\uDD0A':'\uD83D\uDD07'; };
+  function drawLevel2(){
+    const grad=ctx.createLinearGradient(0,330,0,H);grad.addColorStop(0,'#7647a8');grad.addColorStop(1,'#2a6d5f');
+    ctx.fillStyle=grad;ctx.fillRect(0,330,W,210);
+    ctx.fillStyle='#9a6dc0';for(let x=0;x<W;x+=120){ctx.beginPath();ctx.arc(x,350,90,Math.PI,0);ctx.fill();}
+    ctx.fillStyle='#7cf29a';ctx.beginPath();ctx.ellipse(850,190,90,45,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#63e6ff';ctx.beginPath();ctx.ellipse(850,190,130,12,0,0,Math.PI*2);ctx.fill();
+    robotParts.forEach(p=>{if(!p.got){ctx.fillStyle='#dfe4ff';ctx.fillRect(p.x-13,p.y-13,26,26);ctx.fillStyle='#ffd85a';ctx.fillRect(p.x-5,p.y-5,10,10);}});
+    drawGirl(girl1.x,girl1.y,1,true,'#ff78b8');
+    drawGirl(girl2.x,girl2.y,.88,false,'#63e6ff');
+    drawRobot(880,430);
+  }
 
-    const TYPER=[
-      {k:'maage',col:'#f2f4f6',wing:'#c3ccd2',r:17,fart:1.5},
-      {k:'due',  col:'#9aa4ad',wing:'#7d8791',r:15,fart:1.1},
-      {k:'krage',col:'#23272c',wing:'#15181c',r:16,fart:1.35}
-    ];
-    const clouds=[]; for(let i=0;i<5;i++) clouds.push({x:Math.random()*W,y:18+Math.random()*90,s:0.7+Math.random()*0.8});
-    const waves=[]; for(let i=0;i<10;i++) waves.push({x:Math.random()*W,y:H-64+Math.random()*10,w:22+Math.random()*28,p:Math.random()*6.28});
-
-    let phase='fang', last=performance.now(), tLeft=14, spawnT=0, oernT=3200,
-        pointer={x:W/2,y:H/2}, lastFire=0, evidens=0, ended=false, malDone=0,
-        intro=0, introTxt='', introQuip='', shake=0, flash=0, combo=0, comboT=0,
-        netSwing=0, kurv=0, fangTid=0, guldT=4200, ammo=8, reload=0, presse=null, presseNr=0,
-        skydSpawn=0, tMax=14, painting=false, lastBrush=null, penselSnd=0;
-    const birds=[], caught=[], flying=[], shots=[], booms=[], feathers=[], floats=[], skudt=[];
-    const KX=W-56, KY=H-46; // beviskurvens placering (bund)
-
-    function drawNet(x,y){
-      const sw = netSwing>0 ? Math.sin(netSwing*3.1416)*0.7 : 0;
-      ctx.save(); ctx.translate(x,y); ctx.rotate(0.5+sw);
-      // skaft
-      ctx.strokeStyle='#7a5a32'; ctx.lineWidth=5; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(24,24); ctx.lineTo(70,74); ctx.stroke();
-      ctx.strokeStyle='#5c4224'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.moveTo(24,24); ctx.lineTo(70,74); ctx.stroke();
-      ctx.rotate(-0.5-sw);
-      // ring
-      ctx.strokeStyle='#8a8072'; ctx.lineWidth=3;
-      ctx.beginPath(); ctx.arc(0,0,26,0,6.283); ctx.stroke();
-      // masker
-      ctx.save(); ctx.beginPath(); ctx.arc(0,0,25,0,6.283); ctx.clip();
-      ctx.strokeStyle='rgba(239,233,220,.55)'; ctx.lineWidth=1;
-      for(let i=-24;i<=24;i+=8){ ctx.beginPath(); ctx.moveTo(i,-26); ctx.lineTo(i,26); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-26,i); ctx.lineTo(26,i); ctx.stroke(); }
-      ctx.restore();
-      ctx.restore();
-    }
-    function drawKurv(tid){
-      // pil-flettet beviskurv paa jorden
-      ctx.fillStyle='#8a6a38';
-      ctx.beginPath(); ctx.moveTo(KX-40,KY-38); ctx.lineTo(KX+40,KY-38); ctx.lineTo(KX+32,KY); ctx.lineTo(KX-32,KY); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle='rgba(60,42,18,.55)'; ctx.lineWidth=1.4;
-      for(let yy=KY-32;yy<KY-4;yy+=7){ const t=(yy-(KY-38))/38; const half=40-8*t; ctx.beginPath(); ctx.moveTo(KX-half,yy); ctx.lineTo(KX+half,yy); ctx.stroke(); }
-      // fugledroner der stikker op af kurven
-      const n=Math.min(3,kurv);
-      for(let i=0;i<n;i++){
-        const hx=KX-20+i*20, hy=KY-44;
-        ctx.strokeStyle='#4a5055'; ctx.lineWidth=1.6;
-        ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx,hy-9); ctx.stroke();
-        ctx.strokeStyle='rgba(74,80,85,.4)';
-        ctx.beginPath(); ctx.ellipse(hx,hy-9,7,1.8,0,0,6.283); ctx.stroke();
-        ctx.fillStyle='#8a9095'; ctx.beginPath(); ctx.arc(hx,hy+3,6,0,6.283); ctx.fill();
-        ctx.fillStyle='#1a1d20'; ctx.beginPath(); ctx.arc(hx+2,hy+2,1.3,0,6.283); ctx.fill();
-      }
-      if(kurv>3){ ctx.fillStyle='#efe9dc'; ctx.font="700 11px 'Space Mono',monospace"; ctx.textAlign='center'; ctx.fillText('+'+(kurv-3), KX+30, KY-44); }
-      // kant foran (saa fuglene forsvinder ned i kurven)
-      ctx.fillStyle='#9a7842';
-      ctx.beginPath(); ctx.ellipse(KX,KY-38,40,7,0,0,6.283); ctx.fill();
-      ctx.fillStyle='#6e5228';
-      ctx.beginPath(); ctx.ellipse(KX,KY-38,33,4.5,0,0,6.283); ctx.fill();
-      // etiket
-      ctx.fillStyle='#efe9dc'; ctx.fillRect(KX-18,KY-26,36,13);
-      ctx.fillStyle='#c23b2e'; ctx.font="700 7px 'Space Mono',monospace"; ctx.textAlign='center';
-      ctx.fillText('BEVISER', KX, KY-17);
-    }
-
-    function startIntro(txt,quip){ intro=1600; introTxt=txt; introQuip=quip; }
-    function addFloat(x,y,txt,col,size){ floats.push({x:x,y:y,txt:txt,col:col||'#f4c64e',size:size||16,life:1}); }
-    function burst(x,y,col,n){ for(let i=0;i<(n||8);i++) feathers.push({x:x,y:y,vx:(Math.random()-0.5)*2.6,vy:-Math.random()*2.2,sw:Math.random()*6.28,col:col,life:1}); }
-    function doShake(v){ if(!reduceMotion) shake=Math.max(shake,v); }
-
-    function pt(e){ const r=cv.getBoundingClientRect(); const p={x:(e.clientX-r.left)*(W/r.width), y:(e.clientY-r.top)*(H/r.height)}; if(e.pointerType==='touch') p.y-=30; return p; }
-
-    function spawnBird(){
-      const ty=TYPER[Math.floor(Math.random()*TYPER.length)];
-      const l=Math.random()<0.5, sp=(ty.fart*0.85+Math.random()*ty.fart*0.6)*(l?1:-1);
-      birds.push({k:ty.k,col:ty.col,wing:ty.wing,r:ty.r,x:l?-40:W+40,y:54+Math.random()*(H-290),vx:sp,bob:Math.random()*6.28,paint:0});
-    }
-    function spawnOern(){
-      const l=Math.random()<0.5;
-      birds.push({k:'oern',col:'#6b4f33',wing:'#553d27',r:26,x:l?-60:W+60,y:70+Math.random()*(H-360),vx:0.8*(l?1:-1),bob:Math.random()*6.28,paint:0});
-    }
-    function spawnGuld(){
-      const l=Math.random()<0.5;
-      birds.push({k:'guld',col:'#e8c766',wing:'#c9a24b',r:15,x:l?-40:W+40,y:60+Math.random()*(H-320),vx:1.9*(l?1:-1),bob:Math.random()*6.28,paint:0});
-      addFloat(W/2,60,'FABERG\u00c9-DUEN! DEN T\u00c6LLER DOBBELT','#e8c766',13);
-    }
-    function drawPensel(x,y,aktiv){
-      ctx.save(); ctx.translate(x,y); ctx.rotate(0.55 + (aktiv?Math.sin(performance.now()*0.02)*0.07:0));
-      // graa malingsklat paa spidsen
-      ctx.fillStyle='#8a9095'; ctx.beginPath(); ctx.ellipse(0,4,8,11,0,0,6.283); ctx.fill();
-      // boerster
-      ctx.fillStyle='#caa66a'; ctx.beginPath(); ctx.moveTo(-8,0); ctx.quadraticCurveTo(0,6,8,0); ctx.lineTo(6,-18); ctx.lineTo(-6,-18); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle='rgba(90,68,38,.5)'; ctx.lineWidth=1;
-      for(let i=-4;i<=4;i+=4){ ctx.beginPath(); ctx.moveTo(i,2); ctx.lineTo(i*0.8,-16); ctx.stroke(); }
-      // metalring
-      ctx.fillStyle='#b9c0c6'; ctx.fillRect(-7,-27,14,10);
-      // traeskaft
-      ctx.fillStyle='#7a5a32'; ctx.fillRect(-4.5,-72,9,46);
-      ctx.fillStyle='#5c4224'; ctx.fillRect(-1,-72,2,46);
-      ctx.restore();
-    }
-    function malStroke(a,bp){
-      const dist=Math.hypot(bp.x-a.x,bp.y-a.y), steps=Math.max(1,Math.round(dist/9));
-      for(let s=0;s<=steps;s++){
-        const px=a.x+(bp.x-a.x)*s/steps, py=a.y+(bp.y-a.y)*s/steps;
-        for(let i=0;i<caught.length;i++){ const b=caught[i];
-          if(b.stage===0 && Math.hypot(b.dx-px,b.dy-py)<b.r*1.15){
-            if(!b.splat) b.splat=[];
-            b.splat.push({x:px-b.dx+(Math.random()-0.5)*4, y:py-b.dy+(Math.random()-0.5)*4, r:b.r*0.2+Math.random()*5});
-            if(b.splat.length>150) b.splat.shift();
-            b.mal=Math.min(1,(b.mal||0)+ (dist/steps)/620);
-            if(Math.random()<0.12) feathers.push({x:px,y:py+8,vx:(Math.random()-0.5)*0.4,vy:0.6,sw:Math.random()*6.28,col:'#8a9095',life:0.55});
-            const nu=performance.now(); if(nu-penselSnd>150){ penselSnd=nu; noise(.07,.05,false); }
-            if(b.mal>=1){ b.stage=1; b.splat=null; sSpray();
-              addFloat(b.dx,b.dy-b.r-16,'GR\u00c5 NR. 5 P\u00c5F\u00d8RT','#8a9095',13); }
-            break;
-          } }
-      }
-    }
-    function drawPresse(p,tid){
-      ctx.save(); ctx.translate(p.x,p.y+Math.sin(tid*0.004)*2);
-      // arme og propeller
-      ctx.strokeStyle='#3c444b'; ctx.lineWidth=3; ctx.lineCap='round';
-      [[-17,-7],[17,-7],[-17,7],[17,7]].forEach(function(a,i){
-        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(a[0],a[1]); ctx.stroke();
-        const pa=tid*0.02+i;
-        ctx.strokeStyle='rgba(60,68,75,.45)';
-        ctx.beginPath(); ctx.ellipse(a[0],a[1],10,2.4,0,0,6.283); ctx.stroke();
-        ctx.strokeStyle='#22282d';
-        ctx.beginPath(); ctx.moveTo(a[0]-Math.cos(pa)*10,a[1]-Math.sin(pa)*2.4); ctx.lineTo(a[0]+Math.cos(pa)*10,a[1]+Math.sin(pa)*2.4); ctx.stroke();
-        ctx.strokeStyle='#3c444b';
-      });
-      // krop og kamera
-      ctx.fillStyle='#2c3238'; ctx.fillRect(-13,-7,26,14);
-      ctx.fillStyle='#11181f'; ctx.beginPath(); ctx.arc(0,12,5.5,0,6.283); ctx.fill();
-      ctx.fillStyle='#5dade2'; ctx.beginPath(); ctx.arc(0,12,2.4,0,6.283); ctx.fill();
-      // blaa blink
-      if(Math.floor(tid/450)%2===0){ ctx.fillStyle='#5dade2'; ctx.beginPath(); ctx.arc(10,-9,2.2,0,6.283); ctx.fill(); }
-      // etiket
-      ctx.fillStyle='#efe9dc'; ctx.fillRect(-17,17,34,11);
-      ctx.fillStyle='#c23b2e'; ctx.font="700 7px 'Space Mono',monospace"; ctx.textAlign='center'; ctx.fillText('PRESSE',0,25);
-      ctx.restore();
-    }
-
-    /* --- baggrunde --- */
-    function moelle(x,gy,s,dusk,tid){
-      const c = dusk ? '#1c262c' : '#c9d6dd';
-      ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineWidth=3*s; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(x,gy); ctx.lineTo(x,gy-64*s); ctx.stroke();
-      ctx.save(); ctx.translate(x,gy-64*s); ctx.rotate(tid*0.0012);
-      for(let i=0;i<3;i++){ ctx.rotate(2.094); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-30*s); ctx.stroke(); }
-      ctx.restore();
-      if(dusk){ ctx.fillStyle= (Math.floor(tid/700)%2)? '#e74c3c':'#5a1f18'; ctx.beginPath(); ctx.arc(x,gy-64*s,2.4*s,0,6.283); ctx.fill(); }
-    }
-    function drawCloud(x,y,s,dusk){ ctx.fillStyle= dusk ? 'rgba(200,212,222,.08)' : 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.ellipse(x,y,26*s,14*s,0,0,6.283); ctx.ellipse(x+20*s,y+4*s,20*s,11*s,0,0,6.283); ctx.ellipse(x-20*s,y+4*s,18*s,10*s,0,0,6.283); ctx.fill(); }
-    function bgUde(dusk,tid){
-      const g=ctx.createLinearGradient(0,0,0,H);
-      if(dusk){ g.addColorStop(0,'#101b26'); g.addColorStop(.55,'#28333a'); g.addColorStop(1,'#3d4a44'); }
-      else { g.addColorStop(0,'#8fb8d4'); g.addColorStop(.6,'#c6dde8'); g.addColorStop(1,'#dcebef'); }
-      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-      if(dusk){ ctx.fillStyle='#e8e4d4'; ctx.beginPath(); ctx.arc(W-90,58,20,0,6.283); ctx.fill(); ctx.fillStyle='#28333a'; ctx.beginPath(); ctx.arc(W-98,52,17,0,6.283); ctx.fill();
-        for(let i=0;i<24;i++){ const sx=(i*97)%W, sy=(i*53)%130+8; ctx.fillStyle='rgba(255,255,255,'+(0.25+((i*37)%40)/100)+')'; ctx.fillRect(sx,sy,1.6,1.6); } }
-      else { ctx.fillStyle='rgba(255,244,200,.9)'; ctx.beginPath(); ctx.arc(W-84,56,22,0,6.283); ctx.fill(); }
-      clouds.forEach(c=>{ if(!dusk){ c.x+=0.15; if(c.x>W+70)c.x=-70; } drawCloud(c.x,c.y,c.s,dusk); });
-      // hav
-      ctx.fillStyle= dusk ? '#1a2a30' : '#7aa8bd'; ctx.fillRect(0,H-78,W,32);
-      ctx.strokeStyle= dusk ? 'rgba(180,210,220,.14)' : 'rgba(255,255,255,.55)'; ctx.lineWidth=1.6;
-      waves.forEach(w=>{ const dy=Math.sin(tid*0.002+w.p)*1.6; ctx.beginPath(); ctx.moveTo(w.x,w.y+dy); ctx.quadraticCurveTo(w.x+w.w/2,w.y-3+dy,w.x+w.w,w.y+dy); ctx.stroke(); });
-      // moeller paa horisonten
-      moelle(70,H-78,0.8,dusk,tid); moelle(140,H-78,0.65,dusk,tid+400); moelle(210,H-78,0.72,dusk,tid+900);
-      // land
-      ctx.fillStyle = dusk ? '#243026' : '#6f9e5a'; ctx.fillRect(0,H-46,W,46);
-      ctx.fillStyle = dusk ? '#1b2419' : '#5f8a4d'; ctx.fillRect(0,H-46,W,5);
-    }
-    function bgVaerksted(tid){
-      const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#241d16'); g.addColorStop(1,'#3a2f22');
-      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-      // lampe
-      ctx.strokeStyle='#171310'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,42); ctx.stroke();
-      ctx.fillStyle='#2c251c'; ctx.beginPath(); ctx.moveTo(W/2-26,42); ctx.lineTo(W/2+26,42); ctx.lineTo(W/2+14,58); ctx.lineTo(W/2-14,58); ctx.closePath(); ctx.fill();
-      const lg=ctx.createRadialGradient(W/2,60,10,W/2,60,330); lg.addColorStop(0,'rgba(255,228,150,.32)'); lg.addColorStop(1,'rgba(255,228,150,0)');
-      ctx.fillStyle=lg; ctx.beginPath(); ctx.moveTo(W/2-14,58); ctx.lineTo(W/2-260,H); ctx.lineTo(W/2+260,H); ctx.lineTo(W/2+14,58); ctx.closePath(); ctx.fill();
-      // arbejdsbord
-      ctx.fillStyle='#5a4426'; ctx.fillRect(30,H-190,W-60,150);
-      ctx.fillStyle='#4a3820'; ctx.fillRect(30,H-190,W-60,10);
-      ctx.strokeStyle='rgba(0,0,0,.22)'; ctx.lineWidth=1;
-      for(let x=60;x<W-40;x+=52){ ctx.beginPath(); ctx.moveTo(x,H-178); ctx.lineTo(x,H-44); ctx.stroke(); }
-      ctx.fillStyle='#332a1c'; ctx.fillRect(0,H-40,W,40);
-      // malerspand
-      ctx.fillStyle='#7d8791'; ctx.fillRect(W-88,H-118,52,44);
-      ctx.fillStyle='#8a9095'; ctx.beginPath(); ctx.ellipse(W-62,H-118,26,7,0,0,6.283); ctx.fill();
-      ctx.fillStyle='#efe9dc'; ctx.fillRect(W-82,H-108,40,20);
-      ctx.fillStyle='#2c2823'; ctx.font="8px 'Space Mono',monospace"; ctx.textAlign='center';
-      ctx.fillText('GR\u00c5', W-62, H-99); ctx.fillText('NR. 5', W-62, H-91);
-      // stempel
-      ctx.fillStyle='#6e2b22'; ctx.fillRect(34,H-110,34,14); ctx.fillStyle='#3c2a20'; ctx.fillRect(46,H-124,10,16);
-    }
-
-    /* --- faser --- */
-    function setPhase(p){
-      phase=p; last=performance.now(); malDone=0;
-      if(p==='fang'){ tLeft=10; tMax=10; phaseEl.textContent='Trin 1: fang 2 fugle med nettet';
-        startIntro('TRIN 1: INDFANGNING','Kilden i Forsvarsministeriet: "To fugle. Mere har budgettet ikke råd til."'); }
-      else if(p==='mal'){ phaseEl.textContent='Trin 2: malerværkstedet'; birds.length=0;
-        startIntro('TRIN 2: MALERVÆRKSTEDET','Kilden i Forsvarsministeriet: "Tre bogstaver pr. fugl. Tilsammen: РОССИЯ."');
-        caught.length=Math.min(caught.length,2);
-        caught.forEach((b,i)=>{ b.rOrig=b.r; b.r=52; b.dx=W/2; b.dy=(i===0?235:425); b.x=b.dx; b.y=b.dy; b.face=1; b.paint=0; b.stage=0; b.letter=''; b.ord=DELE[i]; b.bob=Math.random()*6.28; }); }
-      else if(p==='skyd'){ tLeft=14; tMax=14; phaseEl.textContent='Trin 3: bevissikring'; birds.length=0; skydSpawn=300;
-        startIntro('TRIN 3: BEVISSIKRING','Kilden i Forsvarsministeriet: "Skyd KUN dem med bogstaver. De andre er bare fugle."');
-        caught.forEach(b=>{ if(b.rOrig) b.r=b.rOrig; const l=Math.random()<0.5; b.x=l?-40:W+40; b.y=54+Math.random()*(H-320); b.vx=(1.35+Math.random()*1.15)*(l?1:-1); b.face=null; b.down=false; b.vy=0; b.spin=0; b.drone=true; flying.push(b); }); }
-    }
-
-    function updateFang(dt,tid){
-      tLeft-=dt/1000; if(tLeft<0)tLeft=0;
-      statEl.textContent='\u23f1 '+Math.ceil(tLeft)+' s \u00b7 fanget '+caught.length+'/2';
-      fangTid+=dt;
-      spawnT-=dt; if(spawnT<=0){ spawnBird(); spawnT=Math.max(230, 430-fangTid*0.016)+Math.random()*300; }
-      oernT-=dt; if(oernT<=0){ spawnOern(); oernT=5200+Math.random()*3000; }
-      guldT-=dt; if(guldT<=0){ spawnGuld(); guldT=1e9; }
-      for(let i=birds.length-1;i>=0;i--){ const b=birds[i]; b.x+=b.vx*(dt/16); b.bob+=0.13; b.y+=Math.sin(b.bob)*0.4; if(b.x<-80||b.x>W+80) birds.splice(i,1); else drawBird(ctx,b); }
-      if(netSwing>0) netSwing=Math.max(0,netSwing-dt/220);
-      drawNet(pointer.x,pointer.y);
-      if(tLeft<=0){ if(caught.length===0){ ended=true; report(0); } else setPhase('mal'); }
-    }
-    function updateMal(dt,tid){
-      const done = caught.filter(b=>b.stage>=2).length;
-      statEl.textContent='klargjort '+done+' / '+caught.length;
-      caught.forEach(b=>{
-        b.bob+=0.05; b.y=b.dy+Math.sin(b.bob)*1.2;
-        if(b.stage<2){ ctx.strokeStyle='rgba(201,162,75,.55)'; ctx.lineWidth=1.6; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.arc(b.dx,b.dy,b.r+11,0,6.283); ctx.stroke(); ctx.setLineDash([]);
-          ctx.fillStyle='rgba(239,233,220,.8)'; ctx.font="10px 'Space Mono',monospace"; ctx.textAlign='center';
-          ctx.fillText(b.stage===0?'mal med penslen: '+Math.round((b.mal||0)*100)+'%':'tryk: stempl ('+(b.ord.length-b.letter.length)+')', b.dx, b.dy+b.r+24); }
-        // maling: foelger penselstroegene, derefter fuld graa
-        const maal = b.stage>=1 ? 1 : (b.mal||0)*0.55;
-        if(b.paint<maal) b.paint=Math.min(maal,b.paint+dt/300);
-        drawBird(ctx,b);
-        // synlige penselstroeg oven paa fuglen (klippet til krop og hoved)
-        if(b.stage===0 && b.splat && b.splat.length){
-          ctx.save(); ctx.translate(b.x,b.y);
-          ctx.beginPath(); ctx.ellipse(0,0,b.r,b.r*0.6,0,0,6.283); ctx.arc(b.r*0.85,-b.r*0.32,b.r*0.42,0,6.283); ctx.clip();
-          ctx.fillStyle='rgba(138,144,149,.8)';
-          b.splat.forEach(s=>{ ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.283); ctx.fill(); });
-          ctx.restore();
-        }
-      });
-      drawPensel(pointer.x,pointer.y,painting);
-      if(done===caught.length){ malDone+=dt; if(malDone>650) setPhase('skyd'); } else malDone=0;
-    }
-    function updateSkyd(dt,tid){
-      tLeft-=dt/1000; if(tLeft<0)tLeft=0;
-      statEl.textContent='\u23f1 '+Math.ceil(tLeft)+' s \u00b7 orddele '+evidens+'/2';
-      let up=0;
-      // lokkefugle: helt almindelige, umalede fugle
-      skydSpawn-=dt; if(skydSpawn<=0){ spawnBird(); skydSpawn=700+Math.random()*600; }
-      for(let i=birds.length-1;i>=0;i--){ const b=birds[i];
-        if(b.falder){ b.vy+=0.3; b.y+=b.vy; b.spin=(b.spin||0)+0.15; }
-        else { b.x+=b.vx*(dt/16); b.bob+=0.13; b.y+=Math.sin(b.bob)*0.4; }
-        if(b.x<-80||b.x>W+80||b.y>H+40) birds.splice(i,1); else drawBird(ctx,b);
-      }
-      for(let i=flying.length-1;i>=0;i--){ const b=flying[i];
-        if(b.down){
-          // bue-bane ned i beviskurven
-          b.t+=dt/750; const t=Math.min(1,b.t);
-          const cy=Math.min(b.sy,KY-38)-70;
-          b.x=(1-t)*(1-t)*b.sx + 2*(1-t)*t*((b.sx+KX)/2) + t*t*KX;
-          b.y=(1-t)*(1-t)*b.sy + 2*(1-t)*t*cy + t*t*(KY-46);
-          b.spin+=0.18*(b.sx<KX?1:-1); b.bob+=0.25;
-          if(t>=1){ kurv++; sPop(); burst(KX,KY-42,'#8a9095',6); booms.push({x:KX,y:KY-42,life:1,c:'#c8cdd0'}); flying.splice(i,1); continue; }
-        } else { b.x+=b.vx*(dt/16); b.bob+=0.13; b.y+=Math.sin(b.bob)*0.4;
-          if(b.k==='krage' && Math.abs(b.x-pointer.x)<75 && Math.abs(b.y-pointer.y)<55){ b.y+=(b.y<pointer.y?-1:1)*0.9*(dt/16); if(b.y<40)b.y=40; if(b.y>H-110)b.y=H-110; }
-          if(b.x<-50)b.x=W+50; if(b.x>W+50)b.x=-50; up++; }
-      }
-      flying.forEach(b=>{ if(b.y<H+60) drawBird(ctx,b); });
-      // pressedronen (den eneste aegte drone i hele operationen)
-      if(!presse && ((presseNr===0 && tLeft<9.5) || (presseNr===1 && tLeft<4))){
-        presseNr++; const l=Math.random()<0.5;
-        presse={x:l?-40:W+40, y:62+Math.random()*40, vx:1.15*(l?1:-1)};
-        addFloat(W/2,90,'PRESSENS DRONE! SKYD IKKE','#5dade2',16);
-      }
-      if(presse){ presse.x+=presse.vx*(dt/16); drawPresse(presse,tid); if(presse.x<-70||presse.x>W+70) presse=null; }
-      // magasin og genladning
-      if(reload>0){ reload-=dt; if(reload<=0){ ammo=8; sKlik(); }
-        ctx.fillStyle= Math.floor(tid/300)%2 ? '#c9a24b' : '#efe9dc';
-        ctx.font="700 12px 'Space Mono',monospace"; ctx.textAlign='left'; ctx.fillText('LADER OM...', 14, H-18); }
-      for(let i=0;i<8;i++){ ctx.fillStyle= i<ammo ? '#c9a24b' : 'rgba(239,233,220,.18)'; ctx.fillRect(14+i*11, H-38, 7, 14); }
-      drawKurv(tid);
-      // riffel der foelger sigtet
-      const gx=W/2, gy=H-52, ang=Math.atan2(pointer.y-gy,pointer.x-gx);
-      ctx.save(); ctx.translate(gx,gy); ctx.rotate(ang);
-      ctx.fillStyle='#2f3a2c'; ctx.fillRect(0,-4,34,8); ctx.fillStyle='#1f2820'; ctx.fillRect(-12,-5,14,10);
-      if(flash>0){ ctx.fillStyle='rgba(255,214,110,'+flash+')'; ctx.beginPath(); ctx.moveTo(34,0); ctx.lineTo(50,-7); ctx.lineTo(46,0); ctx.lineTo(50,7); ctx.closePath(); ctx.fill(); }
-      ctx.restore();
-      // sigtekorn
-      ctx.strokeStyle='rgba(244,198,78,.9)'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(pointer.x,pointer.y,10,0,6.283); ctx.moveTo(pointer.x-15,pointer.y); ctx.lineTo(pointer.x+15,pointer.y); ctx.moveTo(pointer.x,pointer.y-15); ctx.lineTo(pointer.x,pointer.y+15); ctx.stroke();
-      if((tLeft<=0 && flying.every(b=>!b.down)) || flying.length===0){ ended=true; report(evidens); }
-    }
-
-    function frame(now){
-      const dt=Math.min(50, now-last); last=now;
-      ctx.save();
-      if(shake>0){ ctx.translate((Math.random()-0.5)*shake,(Math.random()-0.5)*shake); shake=Math.max(0,shake-dt*0.05); }
-      if(phase==='mal') bgVaerksted(now); else bgUde(phase==='skyd',now);
-
-      if(intro>0){ intro-=dt; }
-      const spilbar = intro<=1100;
-      if(phase==='fang') updateFang(dt,now);
-      else if(phase==='mal') updateMal(dt,now);
-      else if(phase==='skyd') updateSkyd(dt,now);
-
-      // tidslinje
-      if(phase!=='mal'){ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(0,0,W,5); ctx.fillStyle='#c9a24b'; ctx.fillRect(0,0,W*(tLeft/tMax),5); }
-
-      // skud, fjer, eksplosioner, tekster
-      for(let i=shots.length-1;i>=0;i--){ const s=shots[i]; ctx.globalAlpha=Math.max(0,s.life); ctx.strokeStyle='#f4c64e'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(s.x1,s.y1); ctx.lineTo(s.x2,s.y2); ctx.stroke(); s.life-=dt/150; if(s.life<=0)shots.splice(i,1);} ctx.globalAlpha=1;
-      for(let i=feathers.length-1;i>=0;i--){ const f=feathers[i]; f.vy+=0.05; f.x+=f.vx+Math.sin(f.sw)*0.6; f.y+=f.vy; f.sw+=0.2; ctx.globalAlpha=Math.max(0,f.life)*0.9; ctx.fillStyle=f.col; ctx.beginPath(); ctx.ellipse(f.x,f.y,4,2,f.sw,0,6.283); ctx.fill(); f.life-=dt/900; if(f.life<=0||f.y>H)feathers.splice(i,1);} ctx.globalAlpha=1;
-      for(let i=booms.length-1;i>=0;i--){ const b=booms[i]; const rr=(1-b.life)*18+5; ctx.globalAlpha=Math.max(0,b.life)*0.85; ctx.fillStyle=b.c; ctx.beginPath(); ctx.arc(b.x,b.y,rr,0,6.283); ctx.fill(); b.life-=dt/320; if(b.life<=0)booms.splice(i,1);} ctx.globalAlpha=1;
-      for(let i=floats.length-1;i>=0;i--){ const f=floats[i]; f.y-=dt*0.035; ctx.globalAlpha=Math.max(0,f.life); ctx.fillStyle=f.col; ctx.font="700 "+f.size+"px 'Oswald',sans-serif"; ctx.textAlign='center'; ctx.fillText(f.txt,f.x,f.y); f.life-=dt/1100; if(f.life<=0)floats.splice(i,1);} ctx.globalAlpha=1;
-      if(flash>0) flash=Math.max(0,flash-dt/70);
-      if(comboT>0) comboT-=dt; else combo=0;
-
-      // fase-intro
-      if(intro>0){
-        const a=Math.min(1,intro/400);
-        ctx.fillStyle='rgba(10,15,20,'+(0.55*a)+')'; ctx.fillRect(0,0,W,H);
-        ctx.globalAlpha=a; ctx.textAlign='center';
-        ctx.fillStyle='#efe9dc'; ctx.font="700 24px 'Oswald',sans-serif"; ctx.fillText(introTxt, W/2, H/2-26);
-        ctx.fillStyle='#c9a24b'; ctx.font="11px 'Space Mono',monospace";
-        const ql=(function(t){ if(t.length<40) return [t]; let ix=t.indexOf(' ',Math.floor(t.length/2)); if(ix<0)ix=Math.floor(t.length/2); return [t.slice(0,ix),t.slice(ix+1)]; })(introQuip);
-        ql.forEach((l,li)=>ctx.fillText(l, W/2, H/2+2+li*18));
-        ctx.globalAlpha=1;
-      }
-      ctx.restore();
-      if(ended) return;
-      RAF=requestAnimationFrame(frame);
-    }
-
-    cv.addEventListener('pointerdown', e=>{ const p=pt(e); pointer=p; ac();
-      if(intro>1100) return;
-      if(phase==='fang'){
-        netSwing=1; noise(.09,.08,true);
-        for(let i=0;i<birds.length;i++){ const b=birds[i];
-          if(Math.hypot(b.x-p.x,b.y-p.y)<b.r+14){
-            if(b.k==='oern'){
-              sAlarm(); doShake(9); burst(b.x,b.y,'#6b4f33',10); birds.splice(i,1);
-              addFloat(b.x,b.y-20,'FREDET! DOF ER UNDERRETTET','#e74c3c',15);
-              const tab=Math.min(1,caught.length); for(let j=0;j<tab;j++) caught.pop();
-              if(tab>0) addFloat(W/2,70, tab+' fugl(e) flygtede i forvirringen','#efe9dc',13);
-            } else if(b.k==='guld'){
-              sPop(); setTimeout(sPop,120); doShake(3);
-              if(caught.length<2) caught.push({k:'due',col:'#9aa4ad',wing:'#7d8791',r:15,bob:0,paint:0});
-              if(caught.length<2) caught.push({k:'due',col:'#9aa4ad',wing:'#7d8791',r:15,bob:0,paint:0});
-              booms.push({x:b.x,y:b.y,life:1,c:'#e8c766'}); burst(b.x,b.y,'#e8c766',12);
-              addFloat(b.x,b.y-18,'FABERG\u00c9-DUEN +2','#e8c766',17);
-              birds.splice(i,1); if(caught.length>=2) tLeft=0;
-            } else {
-              sPop(); caught.push({k:b.k,col:b.col,wing:b.wing,r:b.r,bob:0,paint:0});
-              booms.push({x:b.x,y:b.y,life:1,c:'#ffffff'}); burst(b.x,b.y,b.wing,7);
-              addFloat(b.x,b.y-18,'+1','#f4c64e',15);
-              birds.splice(i,1); if(caught.length>=2) tLeft=0;
-            }
-            break;
-          } }
-      } else if(phase==='mal'){
-        painting=true; lastBrush=p; malStroke(p,p);
-        for(let i=0;i<caught.length;i++){ const b=caught[i];
-          if(b.stage===1 && Math.hypot(b.dx-p.x,b.dy-p.y)<b.r+18){
-            const nxt=b.ord[b.letter.length]; b.letter+=nxt; sStamp(); doShake(6); booms.push({x:b.dx,y:b.dy,life:1,c:'#c0392b'}); addFloat(b.dx,b.dy-b.r-16,nxt,'#c0392b',22);
-            if(b.letter.length>=b.ord.length){ b.stage=2; addFloat(b.dx,b.dy-b.r-36,b.letter,'#c0392b',15); }
-            break;
-          } }
-      } else if(phase==='skyd'){
-        const now=performance.now(); if(now-lastFire<140) return; lastFire=now;
-        if(reload>0){ return; }
-        if(ammo<=0){ reload=1000; sKlik(); return; }
-        ammo--; if(ammo===0) reload=1100;
-        sSkud(); flash=1; doShake(4);
-        const gx=W/2, gy=H-52;
-        shots.push({x1:gx,y1:gy,x2:p.x,y2:p.y,life:1});
-        if(presse && Math.hypot(presse.x-p.x,presse.y-p.y)<32){
-          sAlarm(); doShake(11); burst(presse.x,presse.y,'#5dade2',10);
-          const tab=Math.min(1,evidens); evidens-=tab; if(tab) skudt.pop();
-          addFloat(presse.x, presse.y+42, tab? 'PRESSEN SÅ DET! ET FOTO KASSERET':'PRESSEN SÅ DET!','#5dade2',13);
-          presse.vx*=2.6;
-          return;
-        }
-        let hi=-1,hd=1e9; flying.forEach((b,i)=>{ if(!b.down){ const d=Math.hypot(b.x-p.x,b.y-p.y); if(d<b.r+15&&d<hd){hd=d;hi=i;} } });
-        if(hi>=0){ const b=flying[hi]; b.down=true; b.t=0; b.sx=b.x; b.sy=b.y; evidens++; skudt.push(b.letter||'\u0416');
-          sHit(); doShake(7); booms.push({x:b.x,y:b.y,life:1,c:'#c0392b'}); burst(b.x,b.y,'#8a9095',10);
-          addFloat(b.x,b.y-20, evidens>=2 ? 'РОССИЯ KOMPLET!' : 'ORDDEL SIKRET: '+b.letter, evidens>=2?'#e74c3c':'#f4c64e', evidens>=2?18:14);
-        } else {
-          let di=-1,dd=1e9; birds.forEach((b,i)=>{ if(!b.falder){ const d=Math.hypot(b.x-p.x,b.y-p.y); if(d<b.r+15&&d<dd){dd=d;di=i;} } });
-          if(di>=0){ const b=birds[di]; b.falder=true; b.vy=1.2; burst(b.x,b.y,b.wing,6);
-            addFloat(b.x,b.y-18,'BARE EN ALMINDELIG '+(b.k==='maage'?'MÅGE':b.k==='due'?'DUE':'KRAGE'),'#efe9dc',12); }
-        }
-      }
+  function drawLevel3(){
+    ctx.fillStyle='#25336f';ctx.fillRect(0,475,W,65);
+    ctx.fillStyle='#393f83';
+    for(let i=0;i<8;i++)ctx.fillRect(i*130,340+(i%2)*25,100,135);
+    doors.forEach(d=>{
+      if(!d.open){ctx.fillStyle='#ff6f91';ctx.fillRect(d.x,d.y,d.w,d.h);
+        ctx.fillStyle='#ffd85a';for(let y=d.y+12;y<d.y+d.h;y+=28)ctx.fillRect(d.x+6,y,d.w-12,8);}
+      else {ctx.strokeStyle='#7cf29a';ctx.lineWidth=4;ctx.strokeRect(d.x,d.y,d.w,d.h);}
     });
-    cv.addEventListener('pointermove', e=>{ const np=pt(e); if(painting && phase==='mal' && lastBrush) malStroke(lastBrush,np); lastBrush=np; pointer=np; });
-    ['pointerup','pointerleave','pointercancel'].forEach(ev=>cv.addEventListener(ev, ()=>{ painting=false; }));
-
-    window.__gvSkudt = skudt;
-    setPhase('fang');
-    RAF=requestAnimationFrame(frame);
+    switches.forEach(sw=>{ctx.fillStyle=sw.on?'#7cf29a':'#ffd85a';ctx.fillRect(sw.x-18,sw.y-10,36,20);});
+    if(!gems[0].got) drawGem(gems[0].x,gems[0].y,gems[0].r);
+    drawGirl(girl1.x,girl1.y,1,true,'#ff78b8',girl1.active);
+    drawGirl(girl2.x,girl2.y,.88,false,'#63e6ff',girl2.active);
+    ctx.fillStyle='#fff';ctx.font='700 16px system-ui';ctx.textAlign='left';
+    ctx.fillText('Nova-knap',285,505);ctx.fillText('Luna-knap',610,505);
   }
 
-  /* ---------- Rapport ---------- */
-  function rang(n){
-    if(n<=0)  return 'Praktikant i sandhed';
-    if(n===1) return 'Assisterende faktafordrejer';
-    return 'Statsministerens yndlingskilde';
-  }
-  const CITATER=[
-    ['Jeg har set billederne. Jeg har også set en måge før. Det her er IKKE en måge.','Anonym kilde tæt på sagen'],
-    ['Vingemarkeringerne taler deres eget tydelige sprog. Vi ved bare ikke hvilket.','Ekspert, ønsker ikke navn i pressen'],
-    ['Metadataene er desværre slettet af hensyn til rigets sikkerhed. Meget belejligt, ja. Meget sikkert, også.','Presseafdelingen'],
-    ['Samme fugl blev observeret over Kreml i 2019. Eller en der lignede. De ligner alle sammen hinanden.','Uafhængig fugleanalytiker']
-  ];
-  const KAPTIONER=[
-    'Foto ##: der står bogstaver på. Sagen er dermed lukket.',
-    'Foto ##: bemærk rotorerne. Fugle har ikke rotorer.',
-    'Foto ##: zoom selv ind. Længere er den ikke.',
-    'Foto ##: ekspert bekræfter, det er ikke en måge.',
-    'Foto ##: kilde anonym, men meget troværdig.',
-    'Foto ##: helt almindelig droneadfærd.',
-    'Foto ##: metadata slettet, konklusion bevaret.'
-  ];
-  function tegnFoto(cv,letter,seed){
-    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
-    const g=c.createLinearGradient(0,0,0,h); g.addColorStop(0,'#152029'); g.addColorStop(1,'#33413a');
-    c.fillStyle=g; c.fillRect(0,0,w,h);
-    c.fillStyle='#e8e4d4'; c.beginPath(); c.arc(w-20,16,8,0,6.283); c.fill();
-    const b={x:w/2+((seed*13)%14-7), y:h/2+2, r:17, vx:(seed%2? -1:1), bob:seed, col:'#f2f4f6', wing:'#c3ccd2', paint:1, letter:letter, k:'maage', drone:true};
-    drawBird(c,b);
-    // roed ring + pil
-    c.strokeStyle='#e74c3c'; c.lineWidth=2;
-    c.beginPath(); c.ellipse(b.x,b.y,26,19,0.2,0,6.283); c.stroke();
-    c.beginPath(); c.moveTo(w-14,h-12); c.lineTo(b.x+20,b.y+12); c.stroke();
-    c.beginPath(); c.moveTo(b.x+20,b.y+12); c.lineTo(b.x+30,b.y+13); c.moveTo(b.x+20,b.y+12); c.lineTo(b.x+27,b.y+21); c.stroke();
-    // korn
-    for(let i=0;i<260;i++){ c.fillStyle='rgba(255,255,255,'+(Math.random()*0.06)+')'; c.fillRect(Math.random()*w,Math.random()*h,1,1); }
-    // tidsstempel
-    c.fillStyle='#f4c64e'; c.font="8px 'Space Mono',monospace"; c.textAlign='left';
-    c.fillText('26-06-2026 04:1'+(seed%10)+' UTC', 5, h-5);
+  function drawGirl(x,y,s=1,older=true,suit='#ff78b8',active=false){
+    ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+    if(active){ctx.strokeStyle='#ffd85a';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(18,28,30,42,0,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle=suit;roundRect(2,22,32,36,12,true);
+    ctx.fillStyle='#f3c7a5';ctx.beginPath();ctx.arc(18,14,13,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#f4df8d';
+    ctx.beginPath();ctx.arc(10,8,11,0,Math.PI*2);ctx.arc(22,5,12,0,Math.PI*2);ctx.arc(29,12,10,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#2a2450';ctx.beginPath();ctx.arc(14,14,1.5,0,Math.PI*2);ctx.arc(23,14,1.5,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#2a2450';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(18,18,5,0,Math.PI);ctx.stroke();
+    ctx.fillStyle='#dfe4ff';ctx.fillRect(7,54,8,8);ctx.fillRect(24,54,8,8);
+    ctx.restore();
   }
 
-  function report(count){
-    cancel();
-    head.textContent = 'Operation Grå Vinge · rapport';
-    const best = Math.max(count, +(localStorage.getItem('graaVingeRekord2')||0));
-    const nyRekord = count>0 && count>=best && count> +(localStorage.getItem('graaVingeRekord2')||0);
-    localStorage.setItem('graaVingeRekord2', best);
-    sFanfare(count>0);
+  function drawRobot(x,y){
+    ctx.save();ctx.translate(x,y);
+    ctx.fillStyle=score===3?'#7cf29a':'#b7bfdc';roundRect(-28,-42,56,52,10,true);
+    ctx.fillStyle='#63e6ff';ctx.beginPath();ctx.arc(-10,-20,5,0,Math.PI*2);ctx.arc(10,-20,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffd85a';ctx.fillRect(-16,-4,32,5);
+    ctx.restore();
+  }
 
-    let body, stamp, farve;
-    const halvdel = (window.__gvSkudt&&window.__gvSkudt[0])||'РОС';
-    if(count>=2){
-      farve='var(--red)'; stamp='Uigendriveligt';
-      body='Begge fugledroner er nedskudt, fisket op af beviskurven og fotograferet i dårligt lys, som beviser skal. Lagt side om side staver vingerne РОССИЯ. Den centralt placerede person i Forsvarsministeriet sender billederne til sin lige så centralt placerede kollega i Statsministeriet med teksten: se selv, det står jo på fuglen. Ingen spurgte, hvorfor en drone skulle skilte med sin afsender.';
-    } else if(count===1){
-      farve='#b07b2e'; stamp='Halvt bevis';
-      body='Du sikrede kun den ene fugledrone. Vingerne staver '+halvdel+', og resten af ordet fløj sin vej. Kilden i Forsvarsministeriet overvejer at kalde det en forkortelse og håbe på, at ingen spørger.';
-    } else {
-      farve='#8f8675'; stamp='Uden bevis';
-      body='Ingen fugledroner i kurven. Uden gråmalede vinger står den centralt placerede person tilbage med en teori, en tom fotomappe og en meget lang forklaring. Sagen forbliver, pinligt nok, kun en påstand.';
+  function drawGem(x,y,r){
+    ctx.save();ctx.translate(x,y);ctx.rotate(t);
+    ctx.fillStyle='#ffd85a';ctx.beginPath();
+    for(let i=0;i<10;i++){const rr=i%2===0?r:r*.45, a=-Math.PI/2+i*Math.PI/5;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);}
+    ctx.closePath();ctx.fill();ctx.restore();
+  }
+
+  function drawMessage(s){
+    ctx.fillStyle='rgba(10,13,49,.88)';roundRect(120,28,W-240,62,18,true);
+    ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=2;roundRect(120,28,W-240,62,18,false,true);
+    ctx.fillStyle='#fff';ctx.font='800 21px system-ui';ctx.textAlign='center';ctx.fillText(s,W/2,67);
+  }
+
+  function drawWin(){
+    ctx.fillStyle='rgba(5,7,31,.82)';ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';ctx.fillStyle='#ffd85a';ctx.font='900 52px system-ui';ctx.fillText('I klarede hele ruten!',W/2,165);
+    drawGirl(W/2-85,260,1.25,true,'#ff78b8',true);drawGirl(W/2+25,275,1.1,false,'#63e6ff',true);
+    ctx.fillStyle='#eef1ff';ctx.font='700 24px system-ui';ctx.fillText('Nova og Luna tændte stjernefyret sammen.',W/2,400);
+    ctx.fillStyle='#7cf29a';ctx.font='800 22px system-ui';ctx.fillText('Tryk IGEN for at spille igen',W/2,455);
+  }
+
+  function roundRect(x,y,w,h,r,fill=false,stroke=false){
+    ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill)ctx.fill();if(stroke)ctx.stroke();
+  }
+
+  function handleKeyDown(e){
+    keys[e.key]=true;
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+    if((e.key==='Enter'||e.key===' ') && scene==='menu') resetLevel(1);
+    if((e.key==='q'||e.key==='Q') && level===3 && scene==='play'){
+      girl1.active=!girl1.active;girl2.active=!girl2.active;setMessage(`${girl1.active?'Nova':'Luna'} styrer nu.`,1);
     }
-    const cit = CITATER[Math.min(CITATER.length-1, Math.floor(Math.random()*CITATER.length))];
-    const skudt = (window.__gvSkudt||[]).slice(0,6);
-
-    app.innerHTML = `
-      <div class="card">
-        <div class="stamp" style="color:${farve};border-color:${farve}">${stamp}</div>
-        <div class="meta">Operation Grå Vinge · rapport · sagsnr. 883/2004-B</div>
-        <div class="country">Danmark</div>
-        <h1 class="title">Beviserne er klar</h1>
-        <div class="verdict" style="color:${farve}"><span class="dot" style="background:${farve}"></span>${count>=2 ? 'РОССИЯ: ordet er komplet' : count===1 ? 'Halvt ord sikret: '+halvdel : 'Ingen beviser'}</div>
-        <div class="rang">Rang: ${rang(count)}</div>
-        <p class="situation">${body}</p>
-        ${count>0?`<div class="fotos" id="fotos"></div>`:''}
-        ${count>0?`<div class="citat">"${cit[0]}"<span>${cit[1]}</span></div>`:''}
-        <div class="best">${nyRekord?'NY PERSONLIG REKORD: ':'Personlig rekord: '}<b>${best} af 2 orddele</b></div>
-        <div id="sms"></div>
-        <div class="actions">
-          ${count>0?'<button class="btn go big" id="send">Send til Statsministeriet ▸</button>':''}
-          <button class="btn big" id="again">Kør igen ▸</button>
-          <button class="btn big" id="back">Til briefing ▸</button>
-          ${count>0?'<button class="btn" id="kopi">Kopiér resultat</button>':''}
-        </div>
-      </div>`;
-    if(count>0){
-      const holder=document.getElementById('fotos');
-      skudt.forEach((letter,i)=>{
-        const f=document.createElement('div'); f.className='foto';
-        f.style.setProperty('--rot',((i*47)%9-4)+'deg');
-        const c=document.createElement('canvas'); c.width=114; c.height=100;
-        const p=document.createElement('p'); p.textContent=KAPTIONER[i%KAPTIONER.length].replace('##',(i+1));
-        f.appendChild(c); f.appendChild(p); holder.appendChild(f);
-        tegnFoto(c,letter,i+3);
-      });
-    }
-    document.getElementById('again').onclick = game;
-    document.getElementById('back').onclick = briefing;
-
-    if(count>0){
-      document.getElementById('send').onclick = function(){
-        this.style.display='none';
-        const holder=document.getElementById('sms');
-        const phone=document.createElement('div'); phone.className='phone';
-        phone.innerHTML='<div class="top">FMN \u2194 STM \u00b7 krypteret (nok)</div>';
-        holder.appendChild(phone);
-        function bub(cls,hvem,tekst){ const d=document.createElement('div'); d.className='bub '+cls;
-          d.innerHTML=(hvem?'<span class="hvem">'+hvem+'</span>':'')+tekst; phone.appendChild(d); return d; }
-        bub('mig','Centralt placeret, FMN', count>=2 ? 'Se selv. Der står РОССИЯ på dem. Vedhæftet. \uD83D\uDCF8\uD83D\uDCF8' : 'Første halvdel af ordet: '+((window.__gvSkudt&&window.__gvSkudt[0])||'РОС')+'. Resten kommer. \uD83D\uDCF8');
-        const st=bub('status','','Leveret \u2713\u2713');
-        setTimeout(()=>{ st.textContent='Set 04:12 \u2713\u2713'; },900);
-        setTimeout(()=>{
-          const ty=bub('dem typing','Centralt placeret, STM','<span></span><span></span><span></span>');
-          setTimeout(()=>{ ty.classList.remove('typing'); ty.innerHTML='<span class="hvem">Centralt placeret, STM</span>ser trov\u00e6rdigt ud. k\u00f8r.'; sPop(); },1500);
-          setTimeout(()=>{ bub('dem','Centralt placeret, STM','og slet s\u00e5 denne samtale.'); sPop(); },2700);
-          setTimeout(()=>{ bub('mig','Centralt placeret, FMN','allerede slettet.'); },4000);
-          setTimeout(()=>{ bub('dem','Centralt placeret, STM','perfekt. vi har aldrig talt sammen.'); sPop(); },5300);
-          setTimeout(()=>{ bub('status','','FMN er g\u00e5et offline'); },6400);
-        },1400);
-      };
-      document.getElementById('kopi').onclick = function(){
-        const txt='Operation Grå Vinge \uD83D\uDD4A\uFE0F\uD83C\uDFAF\n'+(count>=2?'РОССИЯ: ordet er komplet':count===1?'Halvt ord sikret':'Ingen beviser')+'\nRang: '+rang(count)+'\n\uD83D\uDD4A\uFE0F \u27A1\uFE0F \uD83E\uDE76 \u27A1\uFE0F РОС+СИЯ \u27A1\uFE0F \uD83D\uDCA5 \u27A1\uFE0F \uD83E\uDDFA';
-        const done=()=>{ this.textContent='Kopieret \u2713'; };
-        if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done).catch(()=>{}); }
-        else { const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done(); }
-      };
-    }
+    if((e.key==='r'||e.key==='R') && scene==='win') resetLevel(1);
   }
+  addEventListener('keydown',handleKeyDown);
+  addEventListener('keyup',e=>keys[e.key]=false);
 
-  briefing();
+  document.getElementById('startBtn').onclick=()=>{if(scene==='menu')resetLevel(1);};
+  document.getElementById('restartBtn').onclick=()=>resetLevel(1);
+
+  // Mobilknapper
+  document.querySelectorAll('[data-key]').forEach(btn=>{
+    const key=btn.dataset.key;
+    const down=e=>{e.preventDefault();keys[key]=true;};
+    const up=e=>{e.preventDefault();keys[key]=false;};
+    btn.addEventListener('pointerdown',down);
+    btn.addEventListener('pointerup',up);
+    btn.addEventListener('pointercancel',up);
+    btn.addEventListener('pointerleave',up);
+  });
+
+  document.getElementById('switchBtn').addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(level===3 && scene==='play'){
+      girl1.active=!girl1.active;girl2.active=!girl2.active;
+      setMessage(`${girl1.active?'Nova':'Luna'} styrer nu.`,1);
+    }
+  });
+
+  document.getElementById('actionBtn').addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(scene==='menu') resetLevel(1);
+    else if(scene==='win') resetLevel(1);
+  });
+
+  c.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(scene==='menu') resetLevel(1);
+  });
+
+  async function tryFullscreen(){
+    try{
+      if(!document.fullscreenElement && document.documentElement.requestFullscreen){
+        await document.documentElement.requestFullscreen();
+      }
+    }catch(_){}
+  }
+  document.addEventListener('pointerdown',tryFullscreen,{once:true});
+
+  function loop(ts){
+    const dt=Math.min(.033,(ts-last)/1000||0);last=ts;update(dt);draw();requestAnimationFrame(loop);
+  }
+  updateStatus();requestAnimationFrame(loop);
 })();
 </script>
 </body>
