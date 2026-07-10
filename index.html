@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#07091e">
-<title>Nova & Luna – Stjerneruten</title>
+<title>Nova & Luna – Asteroidebæltet</title>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{
@@ -94,10 +94,10 @@
 
   <div id="startPanel">
     <div id="startCard">
-      <h1>Stjerneruten</h1>
-      <p>Tre rumverdener. Én raket. To søstre.</p>
-      <p class="small">Nova og Luna sidder sammen i cockpittet. Træk fingeren rundt på skærmen, så følger raketten efter.</p>
-      <button id="startBtn" class="action">START EVENTYRET</button>
+      <h1>Asteroidebæltet</h1>
+      <p>Én flot rumbane. Én raket. To søstre.</p>
+      <p class="small">Nova og Luna sidder sammen i cockpittet. Træk fingeren rundt på skærmen, og før dem sikkert gennem asteroidebæltet.</p>
+      <button id="startBtn" class="action">START BANEN</button>
     </div>
   </div>
 </div>
@@ -143,38 +143,14 @@ const LEVELS=[
   {
     name:'Bane 1 · Asteroidebæltet',
     short:'Asteroidebæltet',
-    goal:5,
-    speed:235,
-    length:100,
-    pickup:'stjerner',
-    message:'Saml 5 stjerner og flyv sikkert gennem asteroiderne.',
-    colors:['#090b31','#16195a','#28175b'],
-    planet:{x:1120,y:120,r:95,c1:'#d66a74',c2:'#ffbf7d',ring:true},
-    hazard:'asteroid'
-  },
-  {
-    name:'Bane 2 · Krystaltågen',
-    short:'Krystaltågen',
-    goal:6,
+    goal:8,
     speed:255,
-    length:115,
-    pickup:'krystaller',
-    message:'Saml 6 krystaller i den lysende tåge.',
-    colors:['#071a34','#143f68','#502268'],
-    planet:{x:1080,y:560,r:130,c1:'#3a9fd3',c2:'#80f4d1',ring:false},
-    hazard:'cloud'
-  },
-  {
-    name:'Bane 3 · Kometstormen',
-    short:'Kometstormen',
-    goal:7,
-    speed:285,
-    length:130,
-    pickup:'fyrlys',
-    message:'Saml 7 fyrlys og nå frem til stjernefyret.',
-    colors:['#12051f','#381148','#691c3d'],
-    planet:{x:1100,y:125,r:78,c1:'#7948c5',c2:'#ff75b5',ring:true},
-    hazard:'comet'
+    length:105,
+    pickup:'stjerner',
+    message:'Saml 8 stjerner og flyv sikkert gennem asteroidebæltet.',
+    colors:['#080b31','#1b2067','#050717'],
+    planet:{x:1110,y:120,r:95,c1:'#784d83',c2:'#ffd18a',ring:true},
+    hazard:'asteroid'
   }
 ];
 
@@ -237,7 +213,7 @@ function beginLevel(index){
   rocket={x:180,y:330,w:164,h:84,vx:0,vy:0,trail:[]};
   target={x:rocket.x+rocket.w*.5,y:rocket.y+rocket.h*.5,down:false};
   hazards=[];pickups=[];particles=[];
-  for(let i=0;i<10;i++)hazards.push(makeHazard(660+i*190+rand(0,130)));
+  for(let i=0;i<12;i++)hazards.push(makeHazard(650+i*175+rand(0,130)));
   for(let i=0;i<L.goal+3;i++)pickups.push(makePickup(520+i*250+rand(0,120)));
   startPanel.style.display='none';
   tip.style.opacity='1';
@@ -373,17 +349,11 @@ function hitHazard(h){
 }
 
 function completeLevel(){
-  state=levelIndex===LEVELS.length-1?'gameComplete':'levelComplete';
+  state='gameComplete';
   tip.style.opacity='0';
   startPanel.style.display='grid';
-  if(state==='gameComplete'){
-    setCard('Stjernefyret lyser!','Nova og Luna gennemførte alle tre rumverdener sammen.','SPIL IGEN');
-    tone(660,.12);setTimeout(()=>tone(880,.12),90);setTimeout(()=>tone(1180,.16),180);
-  }else{
-    const next=LEVELS[levelIndex+1];
-    setCard('Bane gennemført!',`Næste rumverden er ${next.short}.`,'NÆSTE BANE');
-    tone(620,.1);setTimeout(()=>tone(900,.12),75);
-  }
+  setCard('Bane gennemført!','Nova og Luna fløj gennem asteroidebæltet og samlede alle stjernerne.','SPIL IGEN');
+  tone(660,.12);setTimeout(()=>tone(880,.12),90);setTimeout(()=>tone(1180,.16),180);
 }
 
 function burst(x,y,color){
@@ -426,24 +396,35 @@ function draw(){
 }
 
 function drawBackground(){
-  const C=LEVELS[levelIndex]?.colors||['#090b31','#16195a','#28175b'];
-  const g=ctx.createLinearGradient(0,0,W,H);
-  g.addColorStop(0,C[0]);g.addColorStop(.58,C[1]);g.addColorStop(1,C[2]);
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const C=LEVELS[levelIndex]?.colors||['#080b31','#1b2067','#050717'];
 
-  const fog1=ctx.createRadialGradient(220,120,0,220,120,300);
-  fog1.addColorStop(0,'rgba(119,98,255,.16)');fog1.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=fog1;ctx.beginPath();ctx.arc(220,120,300,0,Math.PI*2);ctx.fill();
+  const g=ctx.createRadialGradient(W*.38,H*.36,30,W*.38,H*.36,W*.92);
+  g.addColorStop(0,'#20277a');
+  g.addColorStop(.38,'#10184d');
+  g.addColorStop(.72,'#080b2b');
+  g.addColorStop(1,'#02040f');
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,W,H);
 
-  const fog2=ctx.createRadialGradient(960,520,0,960,520,360);
-  fog2.addColorStop(0,levelIndex===1?'rgba(86,230,255,.15)':'rgba(255,98,177,.12)');
+  // Bløde tåger oven på den samme baggrund.
+  const fog1=ctx.createRadialGradient(250,145,0,250,145,360);
+  fog1.addColorStop(0,levelIndex===1?'rgba(80,210,255,.13)':'rgba(124,101,255,.12)');
+  fog1.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=fog1;ctx.beginPath();ctx.arc(250,145,360,0,Math.PI*2);ctx.fill();
+
+  const fog2=ctx.createRadialGradient(970,520,0,970,520,430);
+  fog2.addColorStop(0,levelIndex===2?'rgba(255,104,176,.12)':levelIndex===1?'rgba(104,231,255,.10)':'rgba(255,146,101,.08)');
   fog2.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=fog2;ctx.beginPath();ctx.arc(960,520,360,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=fog2;ctx.beginPath();ctx.arc(970,520,430,0,Math.PI*2);ctx.fill();
 
   stars.forEach(s=>{
     ctx.globalAlpha=.35+.65*Math.sin(time*(.8+s.z)+s.p)**2;
     ctx.fillStyle=s.z>.75?'#fff8cf':'#dce6ff';
     ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+    if(s.z>.85){
+      ctx.globalAlpha*=.18;
+      ctx.fillRect(s.x-s.r*5,s.y-.5,s.r*10,1);
+    }
   });
   ctx.globalAlpha=1;
 
@@ -500,17 +481,17 @@ function drawRocket(x,y,s=1){
 
   const body=ctx.createLinearGradient(15,8,145,75);
   body.addColorStop(0,'#ffffff');body.addColorStop(.55,'#deebff');body.addColorStop(1,'#9fb3df');
-  ctx.fillStyle=body;roundRect(12,13,126,62,31,true);
+  ctx.fillStyle=body;roundRect(12,13,134,66,33,true);
 
   ctx.fillStyle='#ff82bd';ctx.beginPath();ctx.moveTo(117,14);ctx.quadraticCurveTo(157,19,174,44);ctx.quadraticCurveTo(156,68,117,75);ctx.closePath();ctx.fill();
 
   const glass=ctx.createLinearGradient(56,15,104,60);
   glass.addColorStop(0,'#e5fdff');glass.addColorStop(.48,'#70d0ed');glass.addColorStop(1,'#365b9b');
-  ctx.fillStyle=glass;ctx.beginPath();ctx.ellipse(84,43,39,26,-.04,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=glass;ctx.beginPath();ctx.ellipse(88,45,43,28,-.04,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=3;ctx.stroke();
 
-  drawCockpitGirl(71,45,.78,'#ff82bd');
-  drawCockpitGirl(98,47,.69,'#7deaff');
+  drawCockpitGirl(74,47,.82,'#ff82bd');
+  drawCockpitGirl(104,49,.72,'#7deaff');
 
   ctx.fillStyle='#ffe47a';ctx.beginPath();ctx.arc(33,44,7,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(255,255,255,.65)';ctx.beginPath();ctx.ellipse(73,29,17,6,-.25,0,Math.PI*2);ctx.fill();
